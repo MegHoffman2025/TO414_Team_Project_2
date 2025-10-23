@@ -24,6 +24,9 @@ str(songs)
 summary(songs)
 ```
 
+```{r}
+songs$track_id <- NULL
+```
 
 ## Step 3: Split the Data
 
