@@ -7,6 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#install.packages("tidyverse")
+library(tidyverse)
+library(caret)
+#install.packages("recipes")
+library(recipes)
 ```
 
 ## Step 0: Why?
@@ -20,13 +25,15 @@ songs <- read.csv("Spotify.csv", stringsAsFactors = T)
 ## Step 2: Clean the Data
 
 ```{r}
-str(songs)
-summary(songs)
+songs = songs |>
+  select(-c(X, track_id, album_name, track_name, artists)) 
+# If we wanted to incorporate artist popularity, we would not delete artists
+# For now, we can look at naive approach to consider all artists to be equal playing field
+
+songs |> glimpse()
 ```
 
-```{r}
-songs$track_id <- NULL
-```
+
 
 ## Step 3: Split the Data
 
