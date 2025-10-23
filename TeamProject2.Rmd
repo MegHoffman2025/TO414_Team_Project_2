@@ -91,10 +91,16 @@ song_test_bin <- ifelse(test$popularity >= 50, 1, 0)
 #### Step 6: Evaluate the Model
 
 ```{r}
-confusion <- confusionMatrix(as.factor(song_pred_bin), as.factor(song_test_bin), positive = "1")
+lm_confusion <- confusionMatrix(as.factor(song_pred_bin), as.factor(song_test_bin), positive = "1")
 
-confusion
+lm_confusion
 ```
+
+**Accuracy:** Our Linear Regression model predicted whether or not a song was popular about `r round((as.numeric(lm_confusion$overall["Accuracy"]) * 100), digits = 2)`% of the time.
+
+**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(lm_confusion$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
+
+**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(lm_confusion$byClass["Specificity"]) * 100), digits = 2)`% of them.
 
 ### KNN
 
