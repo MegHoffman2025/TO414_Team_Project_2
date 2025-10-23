@@ -35,9 +35,7 @@ songs = songs |>
 songs |> glimpse()
 ```
 
-<<<<<<< HEAD
 
-=======
 ```{r}
 songs$X <- NULL
 songs$track_id <- NULL
