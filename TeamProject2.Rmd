@@ -70,7 +70,7 @@ y_test  = as.numeric(y_test)
 
 ## Step 4: Train the Data
 ```{r}
-m1 <- lm(popularity ~ ., data = telco_train_unscaled)
+m1 <- lm(popularity ~ ., data = train)
 ```
 
 
