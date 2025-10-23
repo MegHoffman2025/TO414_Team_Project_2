@@ -1,6 +1,6 @@
 ---
 title: "TeamProject2"
-author: "Meghan"
+author: "Mario Prata Dias Alvarez, Sophie Kate Edelman, Meghan Sarah Hoffman, Elias Florentin John, Kritika Singh, Benjamin Victor Tward"
 date: "2025-10-23"
 output: html_document
 ---
