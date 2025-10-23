@@ -38,10 +38,7 @@ songs = songs |>
 songs |> glimpse()
 ```
 
-
-
 ## Step 3: Split the Data
-
 
 ```{r}
 n = nrow(songs)
@@ -72,19 +69,47 @@ test = X_test |> mutate(popularity = y_test)
 # mdl = lm(popularity~., data=train)
 ```
 
-## Step 4: Train the Data
+## Step 4, 5, and 6: The Models
+
+### Linear Regression
+
+#### Step 4: Build the Model
+
 ```{r}
 m1 <- lm(popularity ~ ., data = train)
 ```
 
+#### Step 5: Predict
 
-## Step 5: Predict
 ```{r}
 song_pred_log <- predict(m1, test)
 summary(song_pred_log)
 ```
 
-## Step 6: Evaluate the Model
+#### Step 6: Evaluate the Model
+
+### KNN
+
+#### Step 4: Build the Model
+
+#### Step 5: Predict
+
+#### Step 6: Evaluate the Model
+
+### Decision Tree (With and without Cost Matrix)
+
+#### Step 4: Build the Model
+
+#### Step 5: Predict
+
+#### Step 6: Evaluate the Model
+
+### ANN
+
+#### Step 4: Build the Model
+
+#### Step 5: Predict
+
+#### Step 6: Evaluate the Model
 
 ## Step 7: Conclusion
-
