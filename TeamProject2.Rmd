@@ -70,6 +70,9 @@ test = X_test |> mutate(popularity = y_test)
 ```
 
 ## Step 4: Train the Data
+```{r}
+m1 <- lm(popularity ~ ., data = train)
+```
 
 
 
