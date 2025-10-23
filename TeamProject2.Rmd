@@ -13,7 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Step 1: Load the Data
 
+```{r}
+songs <- read.csv("Spotify.csv", stringsAsFactors = T)
+```
+
 ## Step 2: Clean the Data
+
+```{r}
+str(songs)
+summary(songs)
+```
+
 
 ## Step 3: Split the Data
 
