@@ -25,12 +25,15 @@ summary(songs)
 ```
 
 ```{r}
+songs$X <- NULL
 songs$track_id <- NULL
 ```
 
 ## Step 3: Split the Data
 
 ## Step 4: Train the Data
+
+
 
 ## Step 5: Test the Data
 
