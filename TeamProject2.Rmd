@@ -83,10 +83,18 @@ m1 <- lm(popularity ~ ., data = train)
 
 ```{r}
 song_pred_log <- predict(m1, test)
-summary(song_pred_log)
+song_pred_bin <- ifelse(song_pred_log >= 50, 1, 0)
+song_test_bin <- ifelse(test$popularity >= 50, 1, 0)
+
 ```
 
 #### Step 6: Evaluate the Model
+
+```{r}
+confusion <- confusionMatrix(as.factor(song_pred_bin), as.factor(song_test_bin), positive = "1")
+
+confusion
+```
 
 ### KNN
 
