@@ -36,14 +36,37 @@ songs |> glimpse()
 ```
 
 
-```{r}
-songs$X <- NULL
-songs$track_id <- NULL
-
-View(songs)
-```
 
 ## Step 3: Split the Data
+
+
+```{r}
+n = nrow(songs)
+p = .7
+
+set.seed(12345)
+ind = sample(1:n, n*p)
+train = songs[ind,]
+test = songs[-ind,]
+
+
+rec = recipe(y ~ ., data = train) |>
+  step_impute_median(all_numeric_predictors()) |> 
+  step_range(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+
+prep_rec = prep(rec, training = train)
+
+X_train = bake(prep_rec, new_data = train, all_predictors())
+X_test  = bake(prep_rec, new_data = test, all_predictors())
+y_train = train$y
+y_test  = test$y
+
+X_train = as.matrix(X_train)
+X_test  = as.matrix(X_test)
+y_train = as.numeric(y_train)
+y_test  = as.numeric(y_test)
+```
 
 ## Step 4: Train the Data
 
