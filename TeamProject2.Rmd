@@ -44,7 +44,6 @@ songs$track_id <- NULL
 
 View(songs)
 ```
->>>>>>> 2191c0735ab291c72bdce7cd62ca0631149afb58
 
 ## Step 3: Split the Data
 
