@@ -27,6 +27,8 @@ summary(songs)
 ```{r}
 songs$X <- NULL
 songs$track_id <- NULL
+
+View(songs)
 ```
 
 ## Step 3: Split the Data
