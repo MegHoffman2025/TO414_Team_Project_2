@@ -50,17 +50,17 @@ train = songs[ind,]
 test = songs[-ind,]
 
 
-rec = recipe(y ~ ., data = train) |>
+rec = recipe(popularity ~ ., data = train) |>
   step_impute_median(all_numeric_predictors()) |> 
-  step_range(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors()) |>
   step_dummy(all_nominal_predictors())
 
 prep_rec = prep(rec, training = train)
 
 X_train = bake(prep_rec, new_data = train, all_predictors())
 X_test  = bake(prep_rec, new_data = test, all_predictors())
-y_train = train$y
-y_test  = test$y
+y_train = train$popularity
+y_test  = test$popularity
 
 X_train = as.matrix(X_train)
 X_test  = as.matrix(X_test)
