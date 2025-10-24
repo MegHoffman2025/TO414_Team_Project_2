@@ -32,6 +32,7 @@ songs = songs |>
   select(-c(X, track_id, album_name, track_name, artists)) |>
   mutate(popularity = ifelse(popularity > 50, 1, 0))
 # If we wanted to incorporate artist popularity, we would not delete artists
+# Approach would be GEE with artist groupings, gaussian family for linear outcome (not fully robust but acceptable)
 # For now, we can look at naive approach to consider all artists to be equal playing field
 
 songs |> glimpse()
