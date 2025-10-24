@@ -19,6 +19,10 @@ library(recipes)
 
 ## Step 0: Why?
 
+**Objective:** To maximize user retention and daily active listening time, how can Spotify's recommendation engine use a song's audio features (danceability, energy, valence), track_genre, and other variables to build a predictive model that more accurately identifies high-engagement tracks (i.e., high future popularity) for its personalized playlists like 'Discover Weekly'?
+
+**Assumption:** A 10% increase in the number of high-engagement songs a user hears in their 'Discover Weekly' playlist will lead to a 0.5% decrease in their probability of churning (canceling their subscription) that month.
+
 ## Step 1: Load the Data
 
 ```{r}
