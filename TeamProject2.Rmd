@@ -196,6 +196,16 @@ decision_confusion_cost
 
 **What we changed to get the best results**
 
+### SVM
+
+#### Step 4: Build the Model
+
+#### Step 5: Predict
+
+#### Step 6: Evaluate the Model
+
+**What we changed to get the best results**
+
 ## Step 7: Conclusion
 
 ### Combined Models
