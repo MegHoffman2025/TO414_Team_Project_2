@@ -104,6 +104,8 @@ lm_confusion
 
 **Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(lm_confusion$byClass["Specificity"]) * 100), digits = 2)`% of them.
 
+**What we changed to get the best results**
+
 ### KNN
 
 #### Step 4: Build the Model
@@ -112,13 +114,77 @@ lm_confusion
 
 #### Step 6: Evaluate the Model
 
+**What we changed to get the best results**
+
 ### Decision Tree (With and without Cost Matrix)
 
 #### Step 4: Build the Model
 
+```{r, cache=TRUE}
+library(C50)
+decision_m1 <- C5.0(as.factor(popularity) ~., data = train)
+```
+
+To try to improve the accuracy of the model, we are also going to implement a cost matrix.
+
+```{r}
+cost_matrix <- matrix(c( 0, 1, 3, 0), nrow = 2)
+cost_matrix
+```
+
+And build a model with the cost matrix.
+
+```{r, cache=TRUE}
+decision_cost_m1 <- C5.0(as.factor(popularity) ~., data = train, costs = cost_matrix)
+```
+
 #### Step 5: Predict
 
+After training the Decision Tree models (with and without the cost matrix), we then had them predict values for the test data.![]()
+
+```{r}
+decision_pop_cost_pred <- predict(decision_cost_m1, test)
+decision_pop_pred <- predict(decision_m1, test)
+summary(decision_pop_cost_pred)
+summary(decision_pop_pred)
+```
+
 #### Step 6: Evaluate the Model
+
+To understand the effectiveness of the Decision Tree model [without the cost matrix]{.underline}, we then build a confusion matrix where we compared the number of songs we predicted were going to be popular to the actual number of songs that were popular.
+
+```{r}
+library(caret)
+decision_confusion <- confusionMatrix(as.factor(decision_pop_pred), as.factor(test$popularity), positive = "1")
+decision_sensitivity <- as.numeric(decision_confusion$byClass["Sensitivity"])
+decision_confusion
+
+```
+
+**Accuracy:** Our Decision Tree model predicted whether or not a song was popular about `r round((as.numeric(decision_confusion$overall["Accuracy"]) * 100), digits = 2)`% of the time.
+
+**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(decision_confusion$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
+
+**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(decision_confusion$byClass["Specificity"]) * 100), digits = 2)`% of them.
+
+[**However if we add the cost_matrix to the model...**]{.underline}
+
+To understand the effectiveness of the decision tree model with the cost matrix, we then build a confusion matrix where we compared the number of songs we predicted were going to be populart to the actual number of songs that were popular.
+
+```{r}
+library(caret)
+decision_confusion_cost <- confusionMatrix(as.factor(decision_pop_cost_pred), as.factor(test$popularity), positive = "1")
+decision_sensitivity_cost <- as.numeric(decision_confusion_cost$byClass["Sensitivity"])
+decision_confusion_cost
+```
+
+**Accuracy:** Our Decision Tree model with a cost matrix predicted whether or not a song was popular about `r round((as.numeric(decision_confusion_cost$overall["Accuracy"]) * 100), digits = 2)`% of the time.
+
+**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(decision_confusion_cost$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
+
+**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(decision_confusion_cost$byClass["Specificity"]) * 100), digits = 2)`% of them.
+
+**What we changed to get the best results**
 
 ### ANN
 
@@ -127,6 +193,8 @@ lm_confusion
 #### Step 5: Predict
 
 #### Step 6: Evaluate the Model
+
+**What we changed to get the best results**
 
 ## Step 7: Conclusion
 
