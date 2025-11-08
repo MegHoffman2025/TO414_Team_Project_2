@@ -1,0 +1,61 @@
+---
+title: "Spotify Popularity Prediction"
+author: "Mario Prata Dias Alvarez, Sophie Kate Edelman, Meghan Sarah Hoffman, Elias Florentin John, Kritika Singh, Benjamin Victor Tward"
+date: `r Sys.date()`
+output: 
+  html_document:
+    toc: True
+    toc_float: True
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("modules/prep.R")
+source("modules/helpers.R")
+```
+
+
+## Individual Models
+
+
+### Neural Network
+
+```{r ann}
+# Not yet implemented
+#source("modules/ann.R")
+#ann_conf = easy_confusion(preds_test_ann, y_test)
+```
+
+
+### Logistic Regression
+
+```{r lr}
+#source("modules/logistic.R")
+#lr_conf = easy_confusion(preds_test_lr, y_test)
+```
+
+
+### K Nearest Neighbors
+
+```{r knn}
+#source("modules/knn.R")
+#knn_conf = easy_confusion(preds_test_knn, y_test)
+```
+
+
+### Support Vector Machine
+
+```{r svm}
+#source("modules/svm.R")
+#svm_conf = easy_confusion(preds_test_svm, y_test)
+```
+
+### Classification Tree
+
+```{r tree}
+#source("modules/tree.R")
+#tree_conf = easy_confusion(preds_test_tree, y_test)
+```
+
+
+
