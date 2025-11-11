@@ -5,7 +5,7 @@
 k=10
 
 # Train / Test combined
-preds_test_knn = caret::knn3Train(train = X_train_mat, test = X_test_mat, cl = y_train_vec, k=k)
+preds_test_knn = caret::knn3Train(train = X_train, test = X_test, cl = y_train, k=k)
 preds_test_knn = as.numeric(preds_test_knn)
 
 
