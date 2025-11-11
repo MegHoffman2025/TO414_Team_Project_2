@@ -1,4 +1,10 @@
 .Rproj.user
 .Rhistory
 .RData
+<<<<<<< HEAD
 .Ruserdata
+=======
+.Ruserdata
+.RDataTmp
+.DS_Store
+>>>>>>> c87d50f (trying to pull)
