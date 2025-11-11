@@ -121,34 +121,16 @@ test = X_test |> mutate(popularity = y_test)
 
 ### Logistic Regression
 
-#### Step 4: Build the Model
-
-```{r}
-m1 <- glm(popularity ~ ., data = train, family=binomial())
+```{r lr}
+source("modules/logistic.R")
+lr_conf = easy_confusion(preds_test_lr, y_test)
 ```
 
-#### Step 5: Predict
+**Accuracy:** Our Linear Regression model predicted whether or not a song was popular about `r round((as.numeric(lr_conf$overall["Accuracy"]) * 100), digits = 2)`% of the time.
 
-```{r}
-song_pred_log <- predict(m1, test)
-song_pred_bin <- ifelse(song_pred_log >= .5, 1, 0)
-song_test_bin <- test$popularity
+**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(lr_conf$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
 
-```
-
-#### Step 6: Evaluate the Model
-
-```{r}
-lm_confusion <- confusionMatrix(as.factor(song_pred_bin), as.factor(song_test_bin), positive = "1")
-
-lm_confusion
-```
-
-**Accuracy:** Our Linear Regression model predicted whether or not a song was popular about `r round((as.numeric(lm_confusion$overall["Accuracy"]) * 100), digits = 2)`% of the time.
-
-**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(lm_confusion$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
-
-**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(lm_confusion$byClass["Specificity"]) * 100), digits = 2)`% of them.
+**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(lr_conf$byClass["Specificity"]) * 100), digits = 2)`% of them.
 
 **What we changed to get the best results**
 
@@ -251,6 +233,8 @@ decision_confusion_cost
 #### Step 6: Evaluate the Model
 
 **What we changed to get the best results**
+
+### Random Forest
 
 ## Step 7: Conclusion
 
