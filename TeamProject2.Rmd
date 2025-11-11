@@ -19,9 +19,55 @@ library(recipes)
 
 ## Step 0: Why?
 
-**Objective:** To maximize user retention and daily active listening time, how can Spotify's recommendation engine use a song's audio features (danceability, energy, valence), track_genre, and other variables to build a predictive model that more accurately identifies high-engagement tracks (i.e., high future popularity) for its personalized playlists like 'Discover Weekly'?
+Step 0: Context, Objective, and Financial Model
 
-**Assumption:** A 10% increase in the number of high-engagement songs a user hears in their 'Discover Weekly' playlist will lead to a 0.5% decrease in their probability of churning (canceling their subscription) that month.
+Project Context: Realistic Spotify Metrics
+
+To ground this analysis in real-world performance, we use approximate public and industry figures for a large streaming platform (Q3 2024 estimates):
+
+```{r}
+context_data <- data.frame(
+  Metric = c("Monthly Active Users (MAU)", "Premium Subscribers", "Average Revenue Per User (ARPU)", "Estimated Monthly Churn Rate", "Customer Lifetime Value (CLV)"),
+  Value = c("~600 Million", "~250 Million (42% of MAU)", "~$4.50 / month", "~2.0%", "~$225"),
+  Rationale = c("Based on publicly reported figures.", "Based on publicly reported subscription rates.", "Blended rate across different tiers and regions.", "Industry estimate for major streaming services.", "Calculated as ARPU / Churn Rate = $4.50 / 0.02.")
+)
+colnames(context_data) <- c("Metric", "Estimated Value", "Rationale")
+knitr::kable(context_data, caption = "Realistic Spotify Business Metrics", format = "markdown")
+```
+
+Objective
+
+Objective: To maximize user retention and daily active listening time, how can Spotify's recommendation engine use a song's audio features (danceability, energy, valence), track_genre, and other variables to build a predictive model that more accurately identifies high-engagement tracks (i.e., high future popularity) for its personalized playlists like 'Discover Weekly'?
+
+Assumption & Financial Model
+
+Assumption: A $10\%$ increase in the number of high-engagement songs a user hears in their 'Discover Weekly' playlist will lead to a very marginal $0.01\%$ decrease in their probability of churning (canceling their subscription) that month.
+
+We translate this into the following Net Financial Impact model to guide the Level 2 Stacker. The model is designed to maximize Net Impact (Revenue - Loss). The $\$$ values reflect the estimated scaled impact on CLV and promotion costs per decision.
+
+```{r}
+financial_data <- data.frame(
+  Outcome = c("True Positive (TP)", "False Positive (FP)", "False Negative (FN)"),
+  Metric = c("Correctly identifies a Hidden Gem (Target = 'Yes').", "Predicts 'Yes', but actual is 'No'. (Wasteful promotion)", "Predicts 'No', but actual is 'Yes'. (Lost opportunity)"),
+  Financial_Value = c("+$200", "-$500", "-$100"),
+  Financial_Rationale = c("Revenue: Estimated net monthly value derived from the 0.01% reduction in churn for a high-value, retained customer. (Maximize)", "Cost: Significant loss from license fees, content storage, and opportunity cost of promoting non-engaging content that accelerates churn. (Minimize - Critical Error)", "Cost: Minor loss from missing a viable track and losing the opportunity for increased engagement and retention. (Minimize - Minor Error)")
+)
+colnames(financial_data) <- c("Outcome", "Metric", "Financial Value", "Financial Rationale")
+knitr::kable(financial_data, caption = "Net Financial Impact Model (Per Prediction)", format = "markdown")
+```
+
+The objective is to maximize the Net Impact, calculated as:
+
+\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500) - (\text{FN} \times \$100)
+## Stacked Model Architecture
+
+The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L2) Stacker**.
+
+| Level | Model Name | Role | Optimization |
+| :--- | :--- | :--- | :--- |
+| **Level 1** | LR, KNN, ANN, RF, DT, SVM | **Specialists:** Trained on raw features (danceability, genre, etc.) to capture diverse linear and non-linear patterns. | Standard statistical metrics (Kappa). |
+| **Level 2** | Cost-Sensitive Logistic Regression | **Producer:** Trained on L1 probability outputs using **weighted learning** based on the $5:1$ loss ratio ($-\$500$ FP cost vs. $-\$100$ FN cost). | Maximize Net Financial Impact by aggressively minimizing False Positives. |
+
 
 ## Step 1: Load the Data
 
