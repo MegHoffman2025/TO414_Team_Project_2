@@ -30,8 +30,8 @@ source("modules/helpers.R")
 ### Logistic Regression
 
 ```{r lr}
-#source("modules/logistic.R")
-#lr_conf = easy_confusion(preds_test_lr, y_test)
+source("modules/logistic.R")
+lr_conf = easy_confusion(preds_test_lr, y_test)
 ```
 
 
