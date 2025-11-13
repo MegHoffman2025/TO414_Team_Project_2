@@ -120,15 +120,10 @@ test = X_test |> mutate(popularity = y_test)
 ### Logistic Regression
 
 ```{r lr}
-source("modules/logistic.R")
-lr_conf = easy_confusion(preds_test_lr, y_test)
+#source("modules/logistic.R")
+#lr_conf = easy_confusion(preds_test_lr, y_test)
 ```
 
-**Accuracy:** Our Linear Regression model predicted whether or not a song was popular about `r round((as.numeric(lr_conf$overall["Accuracy"]) * 100), digits = 2)`% of the time.
-
-**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(lr_conf$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
-
-**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(lr_conf$byClass["Specificity"]) * 100), digits = 2)`% of them.
 
 **What we changed to get the best results**
 
