@@ -58,16 +58,14 @@ knitr::kable(financial_data, caption = "Net Financial Impact Model (Per Predicti
 
 The objective is to maximize the Net Impact, calculated as:
 
-\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500) - (\text{FN} \times \$100)
-## Stacked Model Architecture
+\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500) - (\text{FN} \times \$100) \## Stacked Model Architecture
 
 The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L2) Stacker**.
 
 | Level | Model Name | Role | Optimization |
-| :--- | :--- | :--- | :--- |
+|:---|:---|:---|:---|
 | **Level 1** | LR, KNN, ANN, RF, DT, SVM | **Specialists:** Trained on raw features (danceability, genre, etc.) to capture diverse linear and non-linear patterns. | Standard statistical metrics (Kappa). |
 | **Level 2** | Cost-Sensitive Logistic Regression | **Producer:** Trained on L1 probability outputs using **weighted learning** based on the $5:1$ loss ratio ($-\$500$ FP cost vs. $-\$100$ FN cost). | Maximize Net Financial Impact by aggressively minimizing False Positives. |
-
 
 ## Step 1: Load the Data
 
