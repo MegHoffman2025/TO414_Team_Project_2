@@ -37,6 +37,19 @@ y_train = train$popularity
 y_test  = test$popularity
 
 
+# Cook up the train/test
+rec_unscaled = recipe(popularity ~ ., data = train) |>
+  step_impute_median(all_numeric_predictors()) |> 
+  step_dummy(all_nominal_predictors())
+
+prep_rec_unscaled = prep(rec_unscaled, training = train, retain = FALSE)
+
+X_train_unscaled = bake(prep_rec_unscaled, new_data = train, all_predictors())
+X_test_unscaled  = bake(prep_rec_unscaled, new_data = test, all_predictors())
+y_train_unscaled = train$popularity
+y_test_unscaled  = test$popularity
+
+
 # Tidy environment
 detach("package:recipes", unload = TRUE)
 rm(path,n,p,ind,train,test,rec,prep_rec)

@@ -6,8 +6,9 @@ source("modules/prep.R")
 
 library(randomForest)
 
-train = data.frame(X_train, popularity = y_train)
-test = data.frame(X_test, popularity = y_test)
+# converting test and train to dummy variables
+train = data.frame(X_train_unscaled, popularity = y_train)
+test = data.frame(X_test_unscaled, popularity = y_test)
 
 
 forest_m1 <- randomForest(as.factor(popularity) ~., data = train, ntree = 2000, nodesize = 5)
