@@ -19,11 +19,24 @@ test = data.frame(X_test_unscaled, popularity = y_test)
 forest_m1 <- readRDS("models/ForestModelM1.RDS")
 
 
-forest_p1 <- predict(forest_m1, test)
+#forest_p1 <- predict(forest_m1, test, type = "prob")
 
-summary(forest_p1)
 
-saveRDS(forest_p1, "predictions/ForestPredictions.RDS")
+#forest_p1 <- forest_p1[, 2]
+
+
+#saveRDS(forest_p1, "probabilities/ForestProbs.RDS")
+
+forest_p1 <- readRDS("probabilities/ForestProbs.RDS")
+
+#forest_prob1 <- predict(forest_m1, test)
+
+#saveRDS(forest_prob1, "predictions/ForestPredictions.RDS")
+
+forest_prob1 <- readRDS("predictions/ForestPredictions.RDS")
+
+# cleaning the environment
+rm(train, test, forest_m1, forest_p1, forest_prob1)
 
 
 
