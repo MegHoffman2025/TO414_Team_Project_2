@@ -17,7 +17,7 @@ songs = songs |>
 
 # Train / test split
 n = nrow(songs)
-p = .8
+p = .2
 
 ind = sample(1:n, n*p)
 train = songs[ind,]
