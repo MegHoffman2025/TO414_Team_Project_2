@@ -20,12 +20,12 @@ library(class)
 train = data.frame(X_train, popularity = y_train)
 test = data.frame(X_test, popularity = y_test)
 
-knn_m1 <- knn(train = train[,-ncol(train)], 
+#knn_m1 <- knn(train = train[,-ncol(train)], 
               test = test[,-ncol(train)], 
               cl = train[,ncol(train)], 
               k = 15, prob = T)
 
-
+#saveRDS(knn_m1, "models/KNNModelM1.RDS")
 
 knn_m1 <- readRDS("models/KNNModelM1.RDS")
 
