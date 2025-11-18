@@ -50,5 +50,5 @@ knn_p1 <- readRDS("probabilities/KNNProbs.RDS")
 knn_pred1 <- readRDS("predictions/KNNPredictions.RDS")
 
 #cleaning the environment
-rm(train, test, knn_p1, knn_pred1)
+rm(train, test, knn_p1, knn_pred1, knn_m1)
 

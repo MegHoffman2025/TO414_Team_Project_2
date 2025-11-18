@@ -1,5 +1,5 @@
 # Uncomment below if running this module as a standalone
-source("modules/prep.R")
+#source("modules/prep.R")
 
 # Add target back to data
 #train = X_train |> dplyr::mutate(popularity = y_train)
