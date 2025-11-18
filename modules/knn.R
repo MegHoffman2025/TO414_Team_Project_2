@@ -36,11 +36,19 @@ summary(knn_p1)
 
 # prob is the proportion of votes to the winning class
 # The predicted value is the proportion of 1s that were near the data point. If the predicted value is 1, then the probability is prob. If the predicted value is 0, then the probability is (1-prob)
-knn_p1 <- ifelse(knn_m1 == 1, attributes(knn_m1)$prob, (1-attributes(knn_m1)$prob))
-summary(knn_p1)
+#knn_p1 <- ifelse(knn_m1 == 1, attributes(knn_m1)$prob, (1-attributes(knn_m1)$prob))
+#summary(knn_p1)
 
+#saveRDS(knn_p1, "probabilities/KNNProbs.RDS")
+
+knn_p1 <- readRDS("probabilities/KNNProbs.RDS")
 
 #Binning the predictions
-knn_pred1 <- ifelse(knn_p1 >= 0.4, 1, 0)
+#knn_pred1 <- ifelse(knn_p1 >= 0.4, 1, 0)
+#saveRDS(knn_pred1, "predictions/KNNPredictions.RDS")
 
+knn_pred1 <- readRDS("predictions/KNNPredictions.RDS")
+
+#cleaning the environment
+rm(train, test, knn_p1, knn_pred1)
 
