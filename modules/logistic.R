@@ -13,7 +13,7 @@ test = data.frame(X_test_unscaled, popularity = y_test)
 
 # Hyperparameters
 fml_string = "popularity ~ ."
-thresh_lr = .5
+thresh_lr = -.6
 
 # Train
 fml = as.formula(fml_string)
@@ -28,9 +28,14 @@ glm_m1 <- readRDS("models/GLMModelM1.RDS")
 
 #saveRDS(probs_test_lr, "probabilities/GLMProbs.RDS")
 
-#preds_test_lr = ifelse(probs_test_lr>thresh_lr, 1, 0)
+
+glm_p <- readRDS("probabilities/GLMProbs.RDS")
+
+
+#preds_test_lr = ifelse(glm_p>thresh_lr, 1, 0)
 
 #saveRDS(preds_test_lr, "predictions/GLMPredictions.RDS")
 
+
 # Tidy environment
-rm(train, test, fml_string, fml, mdl, glm_m1, thresh_lr)
+rm(train, test, fml_string, fml, mdl, glm_m1, glm_p, thresh_lr)

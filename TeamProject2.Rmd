@@ -63,153 +63,13 @@ The objective is to maximize the Net Impact, calculated as:
 The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L2) Stacker**.
 
 | Level | Model Name | Role | Optimization |
-|:---|:---|:---|:---|
+|:-----------------|:-----------------|:-----------------|:-----------------|
 | **Level 1** | LR, KNN, ANN, RF, DT, SVM | **Specialists:** Trained on raw features (danceability, genre, etc.) to capture diverse linear and non-linear patterns. | Standard statistical metrics (Kappa). |
 | **Level 2** | Cost-Sensitive Logistic Regression | **Producer:** Trained on L1 probability outputs using **weighted learning** based on the $5:1$ loss ratio ($-\$500$ FP cost vs. $-\$100$ FN cost). | Maximize Net Financial Impact by aggressively minimizing False Positives. |
 
-## Step 1: Load the Data
-
-```{r}
-songs <- read.csv("Spotify.csv", stringsAsFactors = T)
-```
-
-## Step 2: Clean the Data
-
-```{r}
-songs = songs |>
-  select(-c(X, track_id, album_name, track_name, artists)) |>
-  mutate(popularity = ifelse(popularity > 50, 1, 0))
-# If we wanted to incorporate artist popularity, we would not delete artists
-# Approach would be GEE with artist groupings, gaussian family for linear outcome (not fully robust but acceptable)
-# For now, we can look at naive approach to consider all artists to be equal playing field
-
-songs |> glimpse()
-```
-
-## Step 3: Split the Data
-
-```{r}
-n = nrow(songs)
-p = .7
-
-set.seed(12345)
-ind = sample(1:n, n*p)
-train = songs[ind,]
-test = songs[-ind,]
-
-rec = recipe(popularity ~ ., data = train) |>
-  step_impute_median(all_numeric_predictors()) |> 
-  step_normalize(all_numeric_predictors()) |>
-  step_dummy(all_nominal_predictors())
-
-prep_rec = prep(rec, training = train, retain = FALSE)
-
-X_train = bake(prep_rec, new_data = train, all_predictors())
-X_test  = bake(prep_rec, new_data = test, all_predictors())
-
-y_train = train$popularity
-y_test  = test$popularity
-
-train = X_train |> mutate(popularity = y_train)
-test = X_test |> mutate(popularity = y_test)
-
-```
-
-## Step 4, 5, and 6: The Models
-
-### Logistic Regression
-
-```{r lr}
-#source("modules/logistic.R")
-#lr_conf = easy_confusion(preds_test_lr, y_test)
-```
-
-
-**What we changed to get the best results**
-
-### KNN
-
-#### Step 4: Build the Model
-
-#### Step 5: Predict
-
-#### Step 6: Evaluate the Model
-
-**What we changed to get the best results**
-
-### Decision Tree (With and without Cost Matrix)
-
-#### Step 4: Build the Model
-
-```{r, cache=TRUE}
-library(C50)
-decision_m1 <- C5.0(as.factor(popularity) ~., data = train)
-```
-
-To try to improve the accuracy of the model, we are also going to implement a cost matrix.
-
-```{r}
-cost_matrix <- matrix(c( 0, 1, 3, 0), nrow = 2)
-cost_matrix
-```
-
-And build a model with the cost matrix.
-
-```{r, cache=TRUE}
-decision_cost_m1 <- C5.0(as.factor(popularity) ~., data = train, costs = cost_matrix)
-```
-
-#### Step 5: Predict
-
-After training the Decision Tree models (with and without the cost matrix), we then had them predict values for the test data.![]()
-
-```{r}
-decision_pop_cost_pred <- predict(decision_cost_m1, test)
-decision_pop_pred <- predict(decision_m1, test)
-summary(decision_pop_cost_pred)
-summary(decision_pop_pred)
-```
-
-#### Step 6: Evaluate the Model
-
-To understand the effectiveness of the Decision Tree model [without the cost matrix]{.underline}, we then build a confusion matrix where we compared the number of songs we predicted were going to be popular to the actual number of songs that were popular.
-
-```{r}
-library(caret)
-decision_confusion <- confusionMatrix(as.factor(decision_pop_pred), as.factor(test$popularity), positive = "1")
-decision_sensitivity <- as.numeric(decision_confusion$byClass["Sensitivity"])
-decision_confusion
-
-```
-
-**Accuracy:** Our Decision Tree model predicted whether or not a song was popular about `r round((as.numeric(decision_confusion$overall["Accuracy"]) * 100), digits = 2)`% of the time.
-
-**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(decision_confusion$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
-
-**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(decision_confusion$byClass["Specificity"]) * 100), digits = 2)`% of them.
-
-[**However if we add the cost_matrix to the model...**]{.underline}
-
-To understand the effectiveness of the decision tree model with the cost matrix, we then build a confusion matrix where we compared the number of songs we predicted were going to be populart to the actual number of songs that were popular.
-
-```{r}
-library(caret)
-decision_confusion_cost <- confusionMatrix(as.factor(decision_pop_cost_pred), as.factor(test$popularity), positive = "1")
-decision_sensitivity_cost <- as.numeric(decision_confusion_cost$byClass["Sensitivity"])
-decision_confusion_cost
-```
-
-**Accuracy:** Our Decision Tree model with a cost matrix predicted whether or not a song was popular about `r round((as.numeric(decision_confusion_cost$overall["Accuracy"]) * 100), digits = 2)`% of the time.
-
-**Sensitivity:** Of all the song that were popular, our model identified about `r round((as.numeric(decision_confusion_cost$byClass["Sensitivity"]) * 100), digits = 2)`% of them.
-
-**Specificity:** Of all the songs that were not popular, our model identified about `r round((as.numeric(decision_confusion_cost$byClass["Specificity"]) * 100), digits = 2)`% of them.
-
-**What we changed to get the best results**
-
-
 ## Step 1, 2, 3: Importing, Cleaning, Splitting, and Normalizing the Data
 
+## Step 4, 5, 6: Building, Predicting, and Analyzing the Models
 
 ```{r}
 source("modules/prep.R")
@@ -219,7 +79,7 @@ test = data.frame(X_test, popularity = y_test)
 
 ### GLM
 
-Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 glm_prob <- readRDS("probabilities/GLMProbs.RDS")
@@ -236,9 +96,11 @@ glm_confusion
 
 **What we changed to get the best results**
 
+For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of -0.6. 
+
 ### ANN
 
-Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 ann_prob <- readRDS("probabilities/ANNProbs.RDS")
@@ -257,7 +119,7 @@ ann_confusion
 
 ### SVM
 
-Work for this model was done in "modules/svm.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/svm.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 svm_prob <- readRDS("probabilities/SVMProbs.RDS")[, 1]
@@ -276,7 +138,7 @@ svm_confusion
 
 ### Random Forest
 
-Work for this model was done in "modules/forest.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/forest.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 forest_prob <- readRDS("probabilities/ForestProbs.RDS")
@@ -295,7 +157,7 @@ forest_confusion
 
 ### KNN
 
-Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 knn_prob <- readRDS("probabilities/KNNProbs.RDS")
@@ -314,7 +176,7 @@ knn_confusion
 
 ### Decision Tree
 
-Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 decision_prob <- readRDS("probabilities/DecisionProbs.RDS")
@@ -327,28 +189,21 @@ To understand the effect of model, we put it through a confusion matrix
 library(caret)
 decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
 decision_confusion
+decision_confusion$overall["Accuracy"]
 ```
 
 **What we changed to get the best results**
 
-### ANN
+### All of the Level 1 Models
 
-Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
-
-```{r}
-ann_prob <- readRDS("probabilities/ANNProbs.RDS")
-ann_pred <- readRDS("predictions/ANNPredictions.RDS")
-```
-
-To understand the effect of model, we put it through a confusion matrix
-
-```{r}
-library(caret)
-ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity), positive = "1")
-ann_confusion
-```
-
-**What we changed to get the best results**
+| Model | Accuracy | Sensitivity | Costs |
+|----------------------|----------------|-------------------|----------------|
+| GLM | `r glm_confusion$overall["Accuracy"]` | `r glm_confusion$byClass["Sensitivity"]` |  |
+| ANN | `r ann_confusion$overall["Accuracy"]` | `r ann_confusion$byClass["Sensitivity"]` |  |
+| SVM | `r svm_confusion$overall["Accuracy"]` | `r svm_confusion$byClass["Sensitivity"]` |  |
+| Random Forest | `r forest_confusion$overall["Accuracy"]` | `r forest_confusion$byClass["Sensitivity"]` |  |
+| KNN | `r knn_confusion$overall["Accuracy"]` | `r knn_confusion$byClass["Sensitivity"]` |  |
+| Decision Tree | `r decision_confusion$overall["Accuracy"]` | `r decision_confusion$byClass["Sensitivity"]` |  |
 
 ### Combining the models
 
