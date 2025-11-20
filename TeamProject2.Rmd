@@ -68,10 +68,10 @@ The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L
 | **Level 2** | Cost-Sensitive Logistic Regression | **Producer:** Trained on L1 probability outputs using **weighted learning** based on the $5:1$ loss ratio ($-\$500$ FP cost vs. $-\$100$ FN cost). | Maximize Net Financial Impact by aggressively minimizing False Positives. |
 
 ## Level 1 Step 1, 2, 3: Importing, Cleaning, Splitting, and Normalizing the Data
+
 ```{r}
 source("modules/prep.R")
 ```
-
 
 ## Level 1 Step 4, 5, 6: Building, Predicting, and Analyzing the Models
 
@@ -100,11 +100,21 @@ glm_confusion
 
 **What we changed to get the best results**
 
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of -0.6. 
+For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of -0.6.
 
 ### ANN
 
 Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
+
+This is what the model looks like:
+
+```{r}
+library(neuralnet)
+ann_model <- readRDS("models/ANNModelM1.RDS")
+plot(ann_model)
+```
+
+![](FinalProjectNeuralNetwork.png){width="485"}
 
 ```{r}
 ann_prob <- readRDS("probabilities/ANNProbs.RDS")
@@ -119,8 +129,7 @@ ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity)
 ann_confusion
 ```
 
-**What we changed to get the best results**
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.4. 
+**What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.4.
 
 ### SVM
 
@@ -139,13 +148,25 @@ svm_confusion <- confusionMatrix(as.factor(svm_pred), as.factor(test$popularity)
 svm_confusion
 ```
 
-**What we changed to get the best results**
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.3. 
-
+**What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.3.
 
 ### Random Forest
 
 Work for this model was done in "modules/forest.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
+
+This is what this model looks like
+
+```{r}
+library(randomForest)
+forest_model <- readRDS("models/ForestModelM1.RDS")
+plot(forest_model)
+```
+
+And this is how important each variable is
+
+```{r}
+varImpPlot(forest_model)
+```
 
 ```{r}
 forest_prob <- readRDS("probabilities/ForestProbs.RDS")
@@ -160,8 +181,7 @@ forest_confusion <- confusionMatrix(as.factor(forest_pred), as.factor(test$popul
 forest_confusion
 ```
 
-**What we changed to get the best results**
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.3, but after optimizing for accuracy and sensitivity, we used a threshold of 0.35. 
+**What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.3, but after optimizing for accuracy and sensitivity, we used a threshold of 0.35.
 
 ### KNN
 
@@ -180,12 +200,19 @@ knn_confusion <- confusionMatrix(as.factor(knn_pred), as.factor(test$popularity)
 knn_confusion
 ```
 
-**What we changed to get the best results**
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.3. 
+**What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.3.
 
 ### Decision Tree
 
 Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
+
+This is what this model looks like
+
+```{r}
+library(C50)
+decision_model <- readRDS("models/DecisionModelM1.RDS")
+plot(decision_model)
+```
 
 ```{r}
 decision_prob <- readRDS("probabilities/DecisionProbs.RDS")
@@ -198,17 +225,14 @@ To understand the effect of model, we put it through a confusion matrix
 library(caret)
 decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
 decision_confusion
-decision_confusion$overall["Accuracy"]
 ```
 
-**What we changed to get the best results**
-For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.19. 
-
+**What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.19.
 
 ### All of the Level 1 Models
 
 | Model | Accuracy | Sensitivity | Costs |
-|----------------------|----------------|-------------------|----------------|
+|---------------------|-----------------|------------------|-----------------|
 | GLM | `r glm_confusion$overall["Accuracy"]` | `r glm_confusion$byClass["Sensitivity"]` |  |
 | ANN | `r ann_confusion$overall["Accuracy"]` | `r ann_confusion$byClass["Sensitivity"]` |  |
 | SVM | `r svm_confusion$overall["Accuracy"]` | `r svm_confusion$byClass["Sensitivity"]` |  |
@@ -224,7 +248,7 @@ combined_models <- data.frame(ann_pred, decision_pred, forest_pred, glm_pred, kn
 
 ## Part 2: Building a Second Level Decision Tree
 
-Since we combined the models right above, there is no need to import of clean them. 
+Since we combined the models right above, there is no need to import of clean them.
 
 ### Step 3: Split the Data
 
@@ -246,6 +270,7 @@ decision_2 <- C5.0(as.factor(test.popularity) ~., data = train2)
 ```
 
 ### Step 5: Predicting with the Model
+
 ```{r}
 decision_p2 <- predict(decision_2, test2, type = "prob")
 decision_p2 <- decision_p2[, 2]
@@ -264,7 +289,7 @@ decision2_confusion
 ## Step 7: Conclusion
 
 | Model | Accuracy | Sensitivity | Costs |
-|----------------------|----------------|-------------------|----------------|
+|---------------------|-----------------|------------------|-----------------|
 | GLM | `r glm_confusion$overall["Accuracy"]` | `r glm_confusion$byClass["Sensitivity"]` |  |
 | ANN | `r ann_confusion$overall["Accuracy"]` | `r ann_confusion$byClass["Sensitivity"]` |  |
 | SVM | `r svm_confusion$overall["Accuracy"]` | `r svm_confusion$byClass["Sensitivity"]` |  |
@@ -272,7 +297,6 @@ decision2_confusion
 | KNN | `r knn_confusion$overall["Accuracy"]` | `r knn_confusion$byClass["Sensitivity"]` |  |
 | Decision Tree | `r decision_confusion$overall["Accuracy"]` | `r decision_confusion$byClass["Sensitivity"]` |  |
 | **2nd Level Decision Tree** | `r decision2_confusion$overall["Accuracy"]` | `r decision2_confusion$byClass["Sensitivity"]` |  |
-
 
 ### Overall Conclusion
 
