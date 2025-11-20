@@ -44,7 +44,7 @@ summary(knn_p1)
 knn_p1 <- readRDS("probabilities/KNNProbs.RDS")
 
 #Binning the predictions
-#knn_pred1 <- ifelse(knn_p1 >= 0.4, 1, 0)
+#knn_pred1 <- ifelse(knn_p1 >= 0.3, 1, 0)
 #saveRDS(knn_pred1, "predictions/KNNPredictions.RDS")
 
 knn_pred1 <- readRDS("predictions/KNNPredictions.RDS")

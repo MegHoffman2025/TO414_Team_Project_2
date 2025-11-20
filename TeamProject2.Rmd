@@ -181,6 +181,7 @@ knn_confusion
 ```
 
 **What we changed to get the best results**
+For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.3. 
 
 ### Decision Tree
 
