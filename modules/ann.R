@@ -23,12 +23,12 @@ neural_m1 <- readRDS("ANNModelM1.RDS")
 
 ann_p1 <- readRDS("probabilities/ANNProbs.RDS")
 
-#ann_pred1 <- ifelse(ann_p1 >= 0.5, 1, 0)
+summary(ann_p1)
+ann_pred1 <- ifelse(ann_p1 >= 0.4, 1, 0)
 
 #saveRDS(ann_pred1, "predictions/ANNPredictions.RDS")
 
-ann_pred1 <- readRDS("predictions/ANNPredictions.RDS")
-
+#ann_pred1 <- readRDS("predictions/ANNPredictions.RDS")
 
 # cleaning the environment
 rm(neural_m1, ann_p1, ann_pred1)

@@ -1654,13 +1654,25 @@ minimizing False Positives.</td>
 </tbody>
 </table>
 </div>
-<div id="step-1-2-3-importing-cleaning-splitting-and-normalizing-the-data" class="section level2">
-<h2>Step 1, 2, 3: Importing, Cleaning, Splitting, and Normalizing the
-Data</h2>
-</div>
-<div id="step-4-5-6-building-predicting-and-analyzing-the-models" class="section level2">
-<h2>Step 4, 5, 6: Building, Predicting, and Analyzing the Models</h2>
+<div id="level-1-step-1-2-3-importing-cleaning-splitting-and-normalizing-the-data" class="section level2">
+<h2>Level 1 Step 1, 2, 3: Importing, Cleaning, Splitting, and
+Normalizing the Data</h2>
 <pre class="r"><code>source(&quot;modules/prep.R&quot;)</code></pre>
+<pre><code>## Warning: &#39;recipes&#39; namespace cannot be unloaded:
+##   namespace &#39;recipes&#39; is imported by &#39;caret&#39; so cannot be unloaded</code></pre>
+</div>
+<div id="level-1-step-4-5-6-building-predicting-and-analyzing-the-models" class="section level2">
+<h2>Level 1 Step 4, 5, 6: Building, Predicting, and Analyzing the
+Models</h2>
+<pre class="r"><code>source(&quot;modules/prep.R&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;recipes&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stringr&#39;:
+## 
+##     fixed</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     step</code></pre>
 <pre><code>## Warning: &#39;recipes&#39; namespace cannot be unloaded:
 ##   namespace &#39;recipes&#39; is imported by &#39;caret&#39; so cannot be unloaded</code></pre>
 <pre class="r"><code>train = data.frame(X_train, popularity = y_train)
@@ -1980,11 +1992,128 @@ decision_confusion</code></pre>
 <pre class="r"><code>combined_models &lt;- data.frame(ann_pred, decision_pred, forest_pred, glm_pred, knn_pred, svm_pred, test$popularity)</code></pre>
 </div>
 </div>
+<div id="part-2-building-a-second-level-decision-tree" class="section level2">
+<h2>Part 2: Building a Second Level Decision Tree</h2>
+<p>Since we combined the models right above, there is no need to import
+of clean them.</p>
+<div id="step-3-split-the-data" class="section level3">
+<h3>Step 3: Split the Data</h3>
+<pre class="r"><code>trainfrac2 &lt;- 0.7
+set.seed(12345)
+
+trainrows &lt;- sample(1:nrow(combined_models), trainfrac2*nrow(combined_models))
+
+train2 &lt;- combined_models[trainrows, ]
+test2 &lt;- combined_models[-trainrows, ]</code></pre>
+</div>
+<div id="step-4-building-the-model" class="section level3">
+<h3>Step 4: Building the Model</h3>
+<pre class="r"><code>library(C50)
+decision_2 &lt;- C5.0(as.factor(test.popularity) ~., data = train2)</code></pre>
+</div>
+<div id="step-5-predicting-with-the-model" class="section level3">
+<h3>Step 5: Predicting with the Model</h3>
+<pre class="r"><code>decision_p2 &lt;- predict(decision_2, test2, type = &quot;prob&quot;)
+decision_p2 &lt;- decision_p2[, 2]
+
+decision_pred2 &lt;- ifelse(decision_p2 &gt;= .5, 1, 0)</code></pre>
+</div>
+<div id="step-6-analyzing-the-model" class="section level3">
+<h3>Step 6: Analyzing the Model</h3>
+<pre class="r"><code>library(caret)
+decision2_confusion &lt;- confusionMatrix(as.factor(decision_pred2), as.factor(test2$test.popularity), positive = &quot;1&quot;)
+decision2_confusion</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction     0     1
+##          0 22380  5363
+##          1   894  2143
+##                                           
+##                Accuracy : 0.7967          
+##                  95% CI : (0.7922, 0.8012)
+##     No Information Rate : 0.7561          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.3095          
+##                                           
+##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
+##                                           
+##             Sensitivity : 0.28550         
+##             Specificity : 0.96159         
+##          Pos Pred Value : 0.70563         
+##          Neg Pred Value : 0.80669         
+##              Prevalence : 0.24386         
+##          Detection Rate : 0.06962         
+##    Detection Prevalence : 0.09867         
+##       Balanced Accuracy : 0.62355         
+##                                           
+##        &#39;Positive&#39; Class : 1               
+## </code></pre>
+</div>
+</div>
 <div id="step-7-conclusion" class="section level2">
 <h2>Step 7: Conclusion</h2>
-<div id="combined-models" class="section level3">
-<h3>Combined Models</h3>
-</div>
+<table>
+<colgroup>
+<col width="30%" />
+<col width="21%" />
+<col width="26%" />
+<col width="21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Accuracy</th>
+<th>Sensitivity</th>
+<th>Costs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GLM</td>
+<td>0.7596491</td>
+<td>0.602401</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>ANN</td>
+<td>0.7717251</td>
+<td>0.3011605</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>SVM</td>
+<td>0.2139864</td>
+<td>0.7022809</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Random Forest</td>
+<td>0.7967544</td>
+<td>0.2848339</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>KNN</td>
+<td>0.7294639</td>
+<td>0.4002001</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Decision Tree</td>
+<td>0.7881774</td>
+<td>0.3191677</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>2nd Level Decision Tree</strong></td>
+<td>0.7967186</td>
+<td>0.2855049</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <div id="overall-conclusion" class="section level3">
 <h3>Overall Conclusion</h3>
 </div>
