@@ -207,27 +207,154 @@ decision_confusion_cost
 
 **What we changed to get the best results**
 
+
+## Step 1, 2, 3: Importing, Cleaning, Splitting, and Normalizing the Data
+
+
+```{r}
+source("modules/prep.R")
+train = data.frame(X_train, popularity = y_train)
+test = data.frame(X_test, popularity = y_test)
+```
+
+### GLM
+
+Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+
+```{r}
+glm_prob <- readRDS("probabilities/GLMProbs.RDS")
+glm_pred <- readRDS("predictions/GLMPredictions.RDS")
+```
+
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+glm_confusion <- confusionMatrix(as.factor(glm_pred), as.factor(test$popularity), positive = "1")
+glm_confusion
+```
+
+**What we changed to get the best results**
+
 ### ANN
 
-#### Step 4: Build the Model
+Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
 
-#### Step 5: Predict
+```{r}
+ann_prob <- readRDS("probabilities/ANNProbs.RDS")
+ann_pred <- readRDS("predictions/ANNPredictions.RDS")
+```
 
-#### Step 6: Evaluate the Model
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity), positive = "1")
+ann_confusion
+```
 
 **What we changed to get the best results**
 
 ### SVM
 
-#### Step 4: Build the Model
+Work for this model was done in "modules/svm.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
 
-#### Step 5: Predict
+```{r}
+svm_prob <- readRDS("probabilities/SVMProbs.RDS")[, 1]
+svm_pred <- readRDS("predictions/SVMPredictions.RDS")
+```
 
-#### Step 6: Evaluate the Model
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+svm_confusion <- confusionMatrix(as.factor(svm_pred), as.factor(test$popularity), positive = "1")
+svm_confusion
+```
 
 **What we changed to get the best results**
 
 ### Random Forest
+
+Work for this model was done in "modules/forest.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+
+```{r}
+forest_prob <- readRDS("probabilities/ForestProbs.RDS")
+forest_pred <- readRDS("predictions/ForestPredictions.RDS")
+```
+
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+forest_confusion <- confusionMatrix(as.factor(forest_pred), as.factor(test$popularity), positive = "1")
+forest_confusion
+```
+
+**What we changed to get the best results**
+
+### KNN
+
+Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+
+```{r}
+knn_prob <- readRDS("probabilities/KNNProbs.RDS")
+knn_pred <- readRDS("predictions/KNNPredictions.RDS")
+```
+
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+knn_confusion <- confusionMatrix(as.factor(knn_pred), as.factor(test$popularity), positive = "1")
+knn_confusion
+```
+
+**What we changed to get the best results**
+
+### Decision Tree
+
+Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+
+```{r}
+decision_prob <- readRDS("probabilities/DecisionProbs.RDS")
+decision_pred <- readRDS("predictions/DecisionPredictions.RDS")
+```
+
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
+decision_confusion
+```
+
+**What we changed to get the best results**
+
+### ANN
+
+Work for this model was done in "modules/knn.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below. 
+
+```{r}
+ann_prob <- readRDS("probabilities/ANNProbs.RDS")
+ann_pred <- readRDS("predictions/ANNPredictions.RDS")
+```
+
+To understand the effect of model, we put it through a confusion matrix
+
+```{r}
+library(caret)
+ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity), positive = "1")
+ann_confusion
+```
+
+**What we changed to get the best results**
+
+### Combining the models
+
+```{r}
+combined_models <- data.frame(ann_pred, decision_pred, forest_pred, glm_pred, knn_pred, svm_pred, test$popularity)
+```
 
 ## Step 7: Conclusion
 
