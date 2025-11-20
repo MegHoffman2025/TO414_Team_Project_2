@@ -29,9 +29,12 @@ forest_m1 <- readRDS("models/ForestModelM1.RDS")
 
 forest_p1 <- readRDS("probabilities/ForestProbs.RDS")
 
-#forest_prob1 <- predict(forest_m1, test)
+summary(forest_p1)
 
-#saveRDS(forest_prob1, "predictions/ForestPredictions.RDS")
+#forest_prob1 <- predict(forest_m1, test)
+#forest_pred1 <- ifelse(forest_p1 >= 0.35, 1, 0)
+
+#saveRDS(forest_pred1, "predictions/ForestPredictions.RDS")
 
 forest_prob1 <- readRDS("predictions/ForestPredictions.RDS")
 
