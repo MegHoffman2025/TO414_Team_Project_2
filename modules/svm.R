@@ -20,16 +20,16 @@ svm_m1 <- readRDS("models/SVMModelM1.RDS")
 
 # Test data
 #probs_test_svm = mdl |> predict(X_test)
-#svm_p1 <- predict(svm_m1, test, type="probabilities")
+#svm_p1 <- predict(svm_m1, test, type="probabilities")[,2]
 
 #saveRDS(svm_p1, "probabilities/SVMProbs.RDS")
 
-svm_p1 <- readRDS("probabilities/SVMProbs.RDS")
+svm_p1 <- readRDS("probabilities/SVMProbs.RDS")[,1]
 
 #preds_test_svm = ifelse(probs_test_svm>thresh_svm, 1, 0)
 #svm_pred1 = ifelse(svm_p1>thresh_svm, 1, 0)
 
-#saveRDS(svm_p1, "predictions/SVMPredictions.RDS")
+#saveRDS(svm_pred1, "predictions/SVMPredictions.RDS")
 
 svm_p1 <- readRDS("predictions/SVMPredictions.RDS")
 
