@@ -7,7 +7,7 @@ test = data.frame(X_test_unscaled, popularity = y_test)
 # Hyperparameters
 #kern = "radial"
 kern = "rbfdot"
-thresh_svm = .5
+thresh_svm = .3
 
 #Train
 #mdl = e1071::svm(x=X_train, y=y_train, kernel=kern)
@@ -27,11 +27,13 @@ svm_m1 <- readRDS("models/SVMModelM1.RDS")
 svm_p1 <- readRDS("probabilities/SVMProbs.RDS")[,1]
 
 #preds_test_svm = ifelse(probs_test_svm>thresh_svm, 1, 0)
-#svm_pred1 = ifelse(svm_p1>thresh_svm, 1, 0)
+svm_pred1 = ifelse(svm_p1>thresh_svm, 1, 0)
 
 #saveRDS(svm_pred1, "predictions/SVMPredictions.RDS")
 
 svm_p1 <- readRDS("predictions/SVMPredictions.RDS")
+
+
 
 # Tidy environment
 #rm(kern, thresh_svm, mdl)
