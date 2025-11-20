@@ -32,8 +32,8 @@ decision_m1 <- readRDS("models/DecisionModelM1.RDS")
 #saveRDS(decision_p1, "probabilities/DecisionProbs.RDS")
 
 decision_p1 <- readRDS("probabilities/DecisionProbs.RDS")
-
-#decision_pred1 <- ifelse(decision_p1 >= .5, 1, 0)
+summary(decision_p1)
+#decision_pred1 <- ifelse(decision_p1 >= .19, 1, 0)
 
 #saveRDS(decision_pred1, "predictions/DecisionPredictions.RDS")
 
