@@ -2141,6 +2141,9 @@ decision_confusion</code></pre>
 ##                                         
 ##        &#39;Positive&#39; Class : 1             
 ## </code></pre>
+<p>Baseline for level 1:</p>
+<pre class="r"><code>baseline_pred = rep(1, length(decision_pred))
+baseline_confusion = confusionMatrix(as.factor(baseline_pred), as.factor(test$popularity), positive = &quot;1&quot;)</code></pre>
 <pre class="r"><code>TP_PROFIT = 200
 FP_COST = 500
 FN_COST = 100
@@ -2151,34 +2154,63 @@ netimpact = function(conf) {
   fp = t[2,1]
   fn = t[1,2]
   
-  return(scales::dollar(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn))
+  return(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
 }
 
-sumtable = function(conf_list, leveltwo = FALSE) {
+ni_improve = function(conf, bl) {
+  ni_model = netimpact(conf)
+  ni_base  = netimpact(bl)
+
+  return((abs(ni_base) - abs(ni_model)) / abs(ni_base))
+}
+
+sumtable = function(conf_list, leveltwo = FALSE, bl1, bl2) {
+
   df = lapply(names(conf_list), function(nm) {
     conf = conf_list[[nm]]
     tibble(
-      Model = nm,
-      Accuracy     = scales::percent(conf$overall[&quot;Accuracy&quot;], accuracy = .01),
-      Sensitivity  = scales::percent(conf$byClass[&quot;Sensitivity&quot;], accuracy = .01),
-      Kappa = signif(conf$overall[[&quot;Kappa&quot;]], 2),
-      `Net Impact` = netimpact(conf)
+      Model       = nm,
+      Accuracy    = scales::percent(conf$overall[&quot;Accuracy&quot;], accuracy = .01),
+      Sensitivity = scales::percent(conf$byClass[&quot;Sensitivity&quot;], accuracy = .01),
+      Kappa       = signif(conf$overall[[&quot;Kappa&quot;]], 2),
+      `Net Impact` = scales::dollar(netimpact(conf)),
+      improvement  = NA_character_
     )
   }) |&gt; bind_rows()
-  
-  #base
-  kb = df |&gt;
+
+  n = nrow(df)
+
+  if (!leveltwo) {
+    df$improvement =
+      scales::percent(sapply(conf_list, ni_improve, bl = bl1), accuracy = .1)
+  } else {
+    df$improvement[1:(n-1)] =
+      scales::percent(
+        sapply(conf_list[1:(n-1)], ni_improve, bl = bl1),
+        accuracy = .1
+      )
+
+    df$improvement[n-1] =
+      scales::percent(
+        ni_improve(conf_list[[n-1]], bl2),
+        accuracy = .1
+      )
+    df$improvement[n] =
+      scales::percent(
+        ni_improve(conf_list[[n]], bl2),
+        accuracy = .1
+      )
+  }
+  kb = df |&gt; rename(`% Improvement` = improvement) |&gt;
     kableExtra::kbl(caption = &quot;Model Performance Summary&quot;) |&gt;
     kableExtra::kable_classic()
 
-  #sep
   if (leveltwo) {
-    n = nrow(df)
     kb = kb |&gt;
-      kableExtra::group_rows(&quot;Level 1&quot;, 1, n - 1) |&gt;
-      kableExtra::group_rows(&quot;Level 2&quot;, n, n)
+      kableExtra::group_rows(&quot;Level 1&quot;, 1, n - 2) |&gt;
+      kableExtra::group_rows(&quot;Level 2&quot;, n-1, n)
   }
-  
+
   return(kb)
 }</code></pre>
 <p><strong>What we changed to get the best results</strong> For the best
@@ -2210,9 +2242,32 @@ Kappa
 <th style="text-align:left;">
 Net Impact
 </th>
+<th style="text-align:left;">
+% Improvement
+</th>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Baseline
+</td>
+<td style="text-align:left;">
+24.36%
+</td>
+<td style="text-align:left;">
+100.00%
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:left;">
+-$33,807,000
+</td>
+<td style="text-align:left;">
+0.0%
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 ANN
@@ -2228,6 +2283,9 @@ ANN
 </td>
 <td style="text-align:left;">
 -$5,184,700
+</td>
+<td style="text-align:left;">
+84.7%
 </td>
 </tr>
 <tr>
@@ -2246,6 +2304,9 @@ KNN
 <td style="text-align:left;">
 -$9,146,900
 </td>
+<td style="text-align:left;">
+72.9%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -2262,6 +2323,9 @@ GLM
 </td>
 <td style="text-align:left;">
 -$5,344,800
+</td>
+<td style="text-align:left;">
+84.2%
 </td>
 </tr>
 <tr>
@@ -2280,6 +2344,9 @@ SVM
 <td style="text-align:left;">
 -$34,020,400
 </td>
+<td style="text-align:left;">
+-0.6%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -2297,6 +2364,9 @@ Forest
 <td style="text-align:left;">
 -$2,516,700
 </td>
+<td style="text-align:left;">
+92.6%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -2313,6 +2383,9 @@ Tree
 </td>
 <td style="text-align:left;">
 -$3,026,500
+</td>
+<td style="text-align:left;">
+91.0%
 </td>
 </tr>
 </tbody>
@@ -2380,6 +2453,9 @@ decision2_confusion</code></pre>
 ##                                           
 ##        &#39;Positive&#39; Class : 1               
 ## </code></pre>
+<p>Baseline for level 2:</p>
+<pre class="r"><code>baseline_pred2 = rep(1, length(decision_pred2))
+baseline_confusion2 = confusionMatrix(as.factor(baseline_pred2), as.factor(test2$test.popularity), positive = &quot;1&quot;)</code></pre>
 </div>
 </div>
 <div id="step-7-conclusion" class="section level2">
@@ -2405,12 +2481,35 @@ Kappa
 <th style="text-align:left;">
 Net Impact
 </th>
+<th style="text-align:left;">
+% Improvement
+</th>
 </tr>
 </thead>
 <tbody>
-<tr grouplength="6">
-<td colspan="5" style="border-bottom: 0;">
+<tr grouplength="7">
+<td colspan="6" style="border-bottom: 0;">
 <strong>Level 1</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Baseline
+</td>
+<td style="text-align:left;">
+24.36%
+</td>
+<td style="text-align:left;">
+100.00%
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:left;">
+-$33,807,000
+</td>
+<td style="text-align:left;">
+0.0%
 </td>
 </tr>
 <tr>
@@ -2429,6 +2528,9 @@ ANN
 <td style="text-align:left;">
 -$5,184,700
 </td>
+<td style="text-align:left;">
+84.7%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
@@ -2445,6 +2547,9 @@ KNN
 </td>
 <td style="text-align:left;">
 -$9,146,900
+</td>
+<td style="text-align:left;">
+72.9%
 </td>
 </tr>
 <tr>
@@ -2463,6 +2568,9 @@ GLM
 <td style="text-align:left;">
 -$5,344,800
 </td>
+<td style="text-align:left;">
+84.2%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
@@ -2479,6 +2587,9 @@ SVM
 </td>
 <td style="text-align:left;">
 -$34,020,400
+</td>
+<td style="text-align:left;">
+-0.6%
 </td>
 </tr>
 <tr>
@@ -2497,6 +2608,9 @@ Forest
 <td style="text-align:left;">
 -$2,516,700
 </td>
+<td style="text-align:left;">
+92.6%
+</td>
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
@@ -2514,10 +2628,33 @@ Tree
 <td style="text-align:left;">
 -$3,026,500
 </td>
+<td style="text-align:left;">
+91.0%
+</td>
 </tr>
-<tr grouplength="1">
-<td colspan="5" style="border-bottom: 0;">
+<tr grouplength="2">
+<td colspan="6" style="border-bottom: 0;">
 <strong>Level 2</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+2nd Level Baseline
+</td>
+<td style="text-align:left;">
+24.39%
+</td>
+<td style="text-align:left;">
+100.00%
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:left;">
+-$10,135,800
+</td>
+<td style="text-align:left;">
+0.0%
 </td>
 </tr>
 <tr>
@@ -2535,6 +2672,9 @@ Tree
 </td>
 <td style="text-align:left;">
 -$738,300
+</td>
+<td style="text-align:left;">
+92.7%
 </td>
 </tr>
 </tbody>

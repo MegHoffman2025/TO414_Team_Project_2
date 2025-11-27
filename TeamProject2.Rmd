@@ -225,6 +225,13 @@ decision_pred <- readRDS("predictions/DecisionPredictions.RDS")
 decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
 decision_confusion
 ```
+Baseline for level 1:
+
+```{r, warning=FALSE, message=FALSE}
+baseline_pred = rep(1, length(decision_pred))
+baseline_confusion = confusionMatrix(as.factor(baseline_pred), as.factor(test$popularity), positive = "1")
+```
+
 
 
 ```{r}
@@ -238,38 +245,68 @@ netimpact = function(conf) {
   fp = t[2,1]
   fn = t[1,2]
   
-  return(scales::dollar(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn))
+  return(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
 }
 
-sumtable = function(conf_list, leveltwo = FALSE) {
+ni_improve = function(conf, bl) {
+  ni_model = netimpact(conf)
+  ni_base  = netimpact(bl)
+
+  return((abs(ni_base) - abs(ni_model)) / abs(ni_base))
+}
+
+sumtable = function(conf_list, leveltwo = FALSE, bl1, bl2) {
+
   df = lapply(names(conf_list), function(nm) {
     conf = conf_list[[nm]]
     tibble(
-      Model = nm,
-      Accuracy     = scales::percent(conf$overall["Accuracy"], accuracy = .01),
-      Sensitivity  = scales::percent(conf$byClass["Sensitivity"], accuracy = .01),
-      Kappa = signif(conf$overall[["Kappa"]], 2),
-      `Net Impact` = netimpact(conf)
+      Model       = nm,
+      Accuracy    = scales::percent(conf$overall["Accuracy"], accuracy = .01),
+      Sensitivity = scales::percent(conf$byClass["Sensitivity"], accuracy = .01),
+      Kappa       = signif(conf$overall[["Kappa"]], 2),
+      `Net Impact` = scales::dollar(netimpact(conf)),
+      improvement  = NA_character_
     )
   }) |> bind_rows()
-  
-  #base
-  kb = df |>
+
+  n = nrow(df)
+
+  if (!leveltwo) {
+    df$improvement =
+      scales::percent(sapply(conf_list, ni_improve, bl = bl1), accuracy = .1)
+  } else {
+    df$improvement[1:(n-1)] =
+      scales::percent(
+        sapply(conf_list[1:(n-1)], ni_improve, bl = bl1),
+        accuracy = .1
+      )
+
+    df$improvement[n-1] =
+      scales::percent(
+        ni_improve(conf_list[[n-1]], bl2),
+        accuracy = .1
+      )
+    df$improvement[n] =
+      scales::percent(
+        ni_improve(conf_list[[n]], bl2),
+        accuracy = .1
+      )
+  }
+  kb = df |> rename(`% Improvement` = improvement) |>
     kableExtra::kbl(caption = "Model Performance Summary") |>
     kableExtra::kable_classic()
 
-  #sep
   if (leveltwo) {
-    n = nrow(df)
     kb = kb |>
-      kableExtra::group_rows("Level 1", 1, n - 1) |>
-      kableExtra::group_rows("Level 2", n, n)
+      kableExtra::group_rows("Level 1", 1, n - 2) |>
+      kableExtra::group_rows("Level 2", n-1, n)
   }
-  
+
   return(kb)
 }
 
 ```
+
 
 
 
@@ -281,6 +318,7 @@ sumtable = function(conf_list, leveltwo = FALSE) {
 
 ```{r, echo=FALSE}
 conflist = list(
+  Baseline = baseline_confusion,
   ANN = ann_confusion,
   KNN = knn_confusion,
   GLM = glm_confusion,
@@ -289,7 +327,7 @@ conflist = list(
   Tree = decision_confusion
 )
 
-sumtable(conflist)
+sumtable(conflist, bl1=baseline_confusion)
 
 ```
 
@@ -337,21 +375,30 @@ decision_pred2 <- ifelse(decision_p2 >= .5, 1, 0)
 decision2_confusion <- confusionMatrix(as.factor(decision_pred2), as.factor(test2$test.popularity), positive = "1")
 decision2_confusion
 ```
+Baseline for level 2:
+
+```{r, warning=FALSE, message=FALSE}
+baseline_pred2 = rep(1, length(decision_pred2))
+baseline_confusion2 = confusionMatrix(as.factor(baseline_pred2), as.factor(test2$test.popularity), positive = "1")
+```
+
 
 ## Step 7: Conclusion
 
 ```{r, echo=FALSE}
 conflist = list(
+  Baseline = baseline_confusion,
   ANN = ann_confusion,
   KNN = knn_confusion,
   GLM = glm_confusion,
   SVM = svm_confusion,
   Forest = forest_confusion,
   Tree = decision_confusion,
+  `2nd Level Baseline` = baseline_confusion2,
   `2nd Level Tree` = decision2_confusion
 )
 
-sumtable(conflist, leveltwo = T)
+sumtable(conflist, leveltwo = T, bl1 = baseline_confusion, bl2 = baseline_confusion2)
 ```
 
 ### Overall Conclusion
