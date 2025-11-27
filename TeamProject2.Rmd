@@ -10,11 +10,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#install.packages("tidyverse")
 library(tidyverse)
 library(caret)
-#install.packages("recipes")
-library(recipes)
 ```
 
 ## Step 0: Why?
@@ -25,12 +22,24 @@ Project Context: Realistic Spotify Metrics
 
 To ground this analysis in real-world performance, we use approximate public and industry figures for a large streaming platform (Q3 2024 estimates):
 
-```{r}
+```{r, echo=FALSE}
 context_data <- data.frame(
-  Metric = c("Monthly Active Users (MAU)", "Premium Subscribers", "Average Revenue Per User (ARPU)", "Estimated Monthly Churn Rate", "Customer Lifetime Value (CLV)"),
-  Value = c("~600 Million", "~250 Million (42% of MAU)", "~$4.50 / month", "~2.0%", "~$225"),
-  Rationale = c("Based on publicly reported figures.", "Based on publicly reported subscription rates.", "Blended rate across different tiers and regions.", "Industry estimate for major streaming services.", "Calculated as ARPU / Churn Rate = $4.50 / 0.02.")
+  Metric = c("Monthly Active Users (MAU)", 
+             "Premium Subscribers", "Average Revenue Per User (ARPU)", 
+             "Estimated Monthly Churn Rate", 
+             "Customer Lifetime Value (CLV)"),
+  Value = c("~600 Million", 
+            "~250 Million (42% of MAU)", 
+            "~$4.50 / month", 
+            "~2.0%", 
+            "~$225"),
+  Rationale = c("Based on publicly reported figures.", 
+                "Based on publicly reported subscription rates.", 
+                "Blended rate across different tiers and regions.", 
+                "Industry estimate for major streaming services.", 
+                "Calculated as ARPU / Churn Rate = $4.50 / 0.02.")
 )
+
 colnames(context_data) <- c("Metric", "Estimated Value", "Rationale")
 knitr::kable(context_data, caption = "Realistic Spotify Business Metrics", format = "markdown")
 ```
@@ -45,7 +54,7 @@ Assumption: A $10\%$ increase in the number of high-engagement songs a user hear
 
 We translate this into the following Net Financial Impact model to guide the Level 2 Stacker. The model is designed to maximize Net Impact (Revenue - Loss). The $\$$ values reflect the estimated scaled impact on CLV and promotion costs per decision.
 
-```{r}
+```{r, echo=FALSE}
 financial_data <- data.frame(
   Outcome = c("True Positive (TP)", "False Positive (FP)", "False Negative (FN)"),
   Metric = c("Correctly identifies a Hidden Gem (Target = 'Yes').", "Predicts 'Yes', but actual is 'No'. (Wasteful promotion)", "Predicts 'No', but actual is 'Yes'. (Lost opportunity)"),
@@ -58,7 +67,11 @@ knitr::kable(financial_data, caption = "Net Financial Impact Model (Per Predicti
 
 The objective is to maximize the Net Impact, calculated as:
 
-\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500) - (\text{FN} \times \$100) \## Stacked Model Architecture
+$$
+\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500) - (\text{FN} \times \$100) 
+$$
+
+## Stacked Model Architecture
 
 The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L2) Stacker**.
 
@@ -69,31 +82,25 @@ The process uses a **6-model Level 1 (L1) Ensemble** feeding into a **Level 2 (L
 
 ## Level 1 Step 1, 2, 3: Importing, Cleaning, Splitting, and Normalizing the Data
 
-```{r}
-source("modules/prep.R")
-```
-
-## Level 1 Step 4, 5, 6: Building, Predicting, and Analyzing the Models
-
-```{r}
+```{r, message=FALSE, error=FALSE, warning=FALSE}
 source("modules/prep.R")
 train = data.frame(X_train, popularity = y_train)
 test = data.frame(X_test, popularity = y_test)
 ```
 
+## Level 1 Step 4, 5, 6: Building, Predicting, and Analyzing the Models
+
 ### GLM
 
-Work for this model was done in "modules/ann.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
+Work for this model was done in "modules/logistic.R", however, since the file sizes were so large, the models, probabilities, and predictions were exported into separate files to be used below.
 
 ```{r}
 glm_prob <- readRDS("probabilities/GLMProbs.RDS")
 glm_pred <- readRDS("predictions/GLMPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 glm_confusion <- confusionMatrix(as.factor(glm_pred), as.factor(test$popularity), positive = "1")
 glm_confusion
 ```
@@ -109,22 +116,21 @@ Work for this model was done in "modules/ann.R", however, since the file sizes w
 This is what the model looks like:
 
 ```{r}
-library(neuralnet)
+#library(neuralnet)
 ann_model <- readRDS("models/ANNModelM1.RDS")
-plot(ann_model)
+#plot(ann_model)
 ```
 
 ![](FinalProjectNeuralNetwork.png){width="485"}
+Incredible. 
 
 ```{r}
 ann_prob <- readRDS("probabilities/ANNProbs.RDS")
 ann_pred <- readRDS("predictions/ANNPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity), positive = "1")
 ann_confusion
 ```
@@ -140,10 +146,8 @@ svm_prob <- readRDS("probabilities/SVMProbs.RDS")[, 1]
 svm_pred <- readRDS("predictions/SVMPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 svm_confusion <- confusionMatrix(as.factor(svm_pred), as.factor(test$popularity), positive = "1")
 svm_confusion
 ```
@@ -157,15 +161,14 @@ Work for this model was done in "modules/forest.R", however, since the file size
 This is what this model looks like
 
 ```{r}
-library(randomForest)
+#library(randomForest)
 forest_model <- readRDS("models/ForestModelM1.RDS")
-plot(forest_model)
+#plot(forest_model)
 ```
-
 And this is how important each variable is
 
 ```{r}
-varImpPlot(forest_model)
+randomForest::varImpPlot(forest_model)
 ```
 
 ```{r}
@@ -173,10 +176,8 @@ forest_prob <- readRDS("probabilities/ForestProbs.RDS")
 forest_pred <- readRDS("predictions/ForestPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 forest_confusion <- confusionMatrix(as.factor(forest_pred), as.factor(test$popularity), positive = "1")
 forest_confusion
 ```
@@ -192,10 +193,8 @@ knn_prob <- readRDS("probabilities/KNNProbs.RDS")
 knn_pred <- readRDS("predictions/KNNPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 knn_confusion <- confusionMatrix(as.factor(knn_pred), as.factor(test$popularity), positive = "1")
 knn_confusion
 ```
@@ -214,31 +213,85 @@ decision_model <- readRDS("models/DecisionModelM1.RDS")
 plot(decision_model)
 ```
 
+Incredible. 
+
 ```{r}
 decision_prob <- readRDS("probabilities/DecisionProbs.RDS")
 decision_pred <- readRDS("predictions/DecisionPredictions.RDS")
 ```
 
-To understand the effect of model, we put it through a confusion matrix
 
 ```{r}
-library(caret)
 decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
 decision_confusion
 ```
+
+
+```{r}
+TP_PROFIT = 200
+FP_COST = 500
+FN_COST = 100
+
+netimpact = function(conf) {
+  t= conf$table
+  tp = t[2,2]
+  fp = t[2,1]
+  fn = t[1,2]
+  
+  return(scales::dollar(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn))
+}
+
+sumtable = function(conf_list, leveltwo = FALSE) {
+  df = lapply(names(conf_list), function(nm) {
+    conf = conf_list[[nm]]
+    tibble(
+      Model = nm,
+      Accuracy     = scales::percent(conf$overall["Accuracy"], accuracy = .01),
+      Sensitivity  = scales::percent(conf$byClass["Sensitivity"], accuracy = .01),
+      Kappa = signif(conf$overall[["Kappa"]], 2),
+      `Net Impact` = netimpact(conf)
+    )
+  }) |> bind_rows()
+  
+  #base
+  kb = df |>
+    kableExtra::kbl(caption = "Model Performance Summary") |>
+    kableExtra::kable_classic()
+
+  #sep
+  if (leveltwo) {
+    n = nrow(df)
+    kb = kb |>
+      kableExtra::group_rows("Level 1", 1, n - 1) |>
+      kableExtra::group_rows("Level 2", n, n)
+  }
+  
+  return(kb)
+}
+
+```
+
+
+
+
 
 **What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.19.
 
 ### All of the Level 1 Models
 
-| Model | Accuracy | Sensitivity | Costs |
-|---------------------|-----------------|------------------|-----------------|
-| GLM | `r glm_confusion$overall["Accuracy"]` | `r glm_confusion$byClass["Sensitivity"]` |  |
-| ANN | `r ann_confusion$overall["Accuracy"]` | `r ann_confusion$byClass["Sensitivity"]` |  |
-| SVM | `r svm_confusion$overall["Accuracy"]` | `r svm_confusion$byClass["Sensitivity"]` |  |
-| Random Forest | `r forest_confusion$overall["Accuracy"]` | `r forest_confusion$byClass["Sensitivity"]` |  |
-| KNN | `r knn_confusion$overall["Accuracy"]` | `r knn_confusion$byClass["Sensitivity"]` |  |
-| Decision Tree | `r decision_confusion$overall["Accuracy"]` | `r decision_confusion$byClass["Sensitivity"]` |  |
+```{r, echo=FALSE}
+conflist = list(
+  ANN = ann_confusion,
+  KNN = knn_confusion,
+  GLM = glm_confusion,
+  SVM = svm_confusion,
+  Forest = forest_confusion,
+  Tree = decision_confusion
+)
+
+sumtable(conflist)
+
+```
 
 ### Combining the models
 
@@ -281,22 +334,25 @@ decision_pred2 <- ifelse(decision_p2 >= .5, 1, 0)
 ### Step 6: Analyzing the Model
 
 ```{r}
-library(caret)
 decision2_confusion <- confusionMatrix(as.factor(decision_pred2), as.factor(test2$test.popularity), positive = "1")
 decision2_confusion
 ```
 
 ## Step 7: Conclusion
 
-| Model | Accuracy | Sensitivity | Costs |
-|---------------------|-----------------|------------------|-----------------|
-| GLM | `r glm_confusion$overall["Accuracy"]` | `r glm_confusion$byClass["Sensitivity"]` |  |
-| ANN | `r ann_confusion$overall["Accuracy"]` | `r ann_confusion$byClass["Sensitivity"]` |  |
-| SVM | `r svm_confusion$overall["Accuracy"]` | `r svm_confusion$byClass["Sensitivity"]` |  |
-| Random Forest | `r forest_confusion$overall["Accuracy"]` | `r forest_confusion$byClass["Sensitivity"]` |  |
-| KNN | `r knn_confusion$overall["Accuracy"]` | `r knn_confusion$byClass["Sensitivity"]` |  |
-| Decision Tree | `r decision_confusion$overall["Accuracy"]` | `r decision_confusion$byClass["Sensitivity"]` |  |
-| **2nd Level Decision Tree** | `r decision2_confusion$overall["Accuracy"]` | `r decision2_confusion$byClass["Sensitivity"]` |  |
+```{r, echo=FALSE}
+conflist = list(
+  ANN = ann_confusion,
+  KNN = knn_confusion,
+  GLM = glm_confusion,
+  SVM = svm_confusion,
+  Forest = forest_confusion,
+  Tree = decision_confusion,
+  `2nd Level Tree` = decision2_confusion
+)
+
+sumtable(conflist, leveltwo = T)
+```
 
 ### Overall Conclusion
 
