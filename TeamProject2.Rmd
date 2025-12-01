@@ -235,17 +235,31 @@ baseline_confusion = confusionMatrix(as.factor(baseline_pred), as.factor(test$po
 
 
 ```{r}
+SONGS_PER_MONTH = 30
 TP_PROFIT = 200
-FP_COST = 500
-FN_COST = 100
+FP_COST =   500
+FN_COST =   100
 
-netimpact = function(conf) {
+netimpact = function(conf, elias=TRUE) {
   t= conf$table
   tp = t[2,2]
   fp = t[2,1]
   fn = t[1,2]
-  
-  return(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
+  if (elias) {
+    SONGS_PER_MONTH = 30
+    TP_PROFIT = 340268
+    FP_COST =   453690
+    FN_COST =   340268
+    n_months = sum(conf$table) / SONGS_PER_MONTH 
+    val = (TP_PROFIT*tp - FP_COST*fp - FN_COST*fn) / n_months
+    return(val)
+  } else {
+    TP_PROFIT = 200
+    FP_COST =   500
+    FN_COST =   100
+    val = (TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
+    return(val)
+  }
 }
 
 ni_improve = function(conf, bl) {

@@ -2144,17 +2144,31 @@ decision_confusion</code></pre>
 <p>Baseline for level 1:</p>
 <pre class="r"><code>baseline_pred = rep(1, length(decision_pred))
 baseline_confusion = confusionMatrix(as.factor(baseline_pred), as.factor(test$popularity), positive = &quot;1&quot;)</code></pre>
-<pre class="r"><code>TP_PROFIT = 200
-FP_COST = 500
-FN_COST = 100
+<pre class="r"><code>SONGS_PER_MONTH = 30
+TP_PROFIT = 200
+FP_COST =   500
+FN_COST =   100
 
-netimpact = function(conf) {
+netimpact = function(conf, elias=TRUE) {
   t= conf$table
   tp = t[2,2]
   fp = t[2,1]
   fn = t[1,2]
-  
-  return(TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
+  if (elias) {
+    SONGS_PER_MONTH = 30
+    TP_PROFIT = 340268
+    FP_COST =   453690
+    FN_COST =   340268
+    n_months = sum(conf$table) / SONGS_PER_MONTH 
+    val = (TP_PROFIT*tp - FP_COST*fp - FN_COST*fn) / n_months
+    return(val)
+  } else {
+    TP_PROFIT = 200
+    FP_COST =   500
+    FN_COST =   100
+    val = (TP_PROFIT*tp - FP_COST*fp - FN_COST*fn)
+    return(val)
+  }
 }
 
 ni_improve = function(conf, bl) {
@@ -2262,7 +2276,7 @@ Baseline
 0.000
 </td>
 <td style="text-align:left;">
--$33,807,000
+-$7,809,235
 </td>
 <td style="text-align:left;">
 0.0%
@@ -2282,10 +2296,10 @@ ANN
 0.350
 </td>
 <td style="text-align:left;">
--$5,184,700
+-$1,640,713
 </td>
 <td style="text-align:left;">
-84.7%
+79.0%
 </td>
 </tr>
 <tr>
@@ -2302,10 +2316,10 @@ KNN
 0.250
 </td>
 <td style="text-align:left;">
--$9,146,900
+-$2,559,899
 </td>
 <td style="text-align:left;">
-72.9%
+67.2%
 </td>
 </tr>
 <tr>
@@ -2322,10 +2336,10 @@ GLM
 0.390
 </td>
 <td style="text-align:left;">
--$5,344,800
+-$1,444,047
 </td>
 <td style="text-align:left;">
-84.2%
+81.5%
 </td>
 </tr>
 <tr>
@@ -2342,10 +2356,10 @@ SVM
 -0.022
 </td>
 <td style="text-align:left;">
--$34,020,400
+-$8,008,288
 </td>
 <td style="text-align:left;">
--0.6%
+-2.5%
 </td>
 </tr>
 <tr>
@@ -2362,10 +2376,10 @@ Forest
 0.430
 </td>
 <td style="text-align:left;">
--$2,516,700
+-$1,017,619
 </td>
 <td style="text-align:left;">
-92.6%
+87.0%
 </td>
 </tr>
 <tr>
@@ -2382,10 +2396,10 @@ Tree
 0.330
 </td>
 <td style="text-align:left;">
--$3,026,500
+-$1,511,173
 </td>
 <td style="text-align:left;">
-91.0%
+80.6%
 </td>
 </tr>
 </tbody>
@@ -2506,7 +2520,7 @@ Baseline
 0.000
 </td>
 <td style="text-align:left;">
--$33,807,000
+-$7,809,235
 </td>
 <td style="text-align:left;">
 0.0%
@@ -2526,10 +2540,10 @@ ANN
 0.350
 </td>
 <td style="text-align:left;">
--$5,184,700
+-$1,640,713
 </td>
 <td style="text-align:left;">
-84.7%
+79.0%
 </td>
 </tr>
 <tr>
@@ -2546,10 +2560,10 @@ KNN
 0.250
 </td>
 <td style="text-align:left;">
--$9,146,900
+-$2,559,899
 </td>
 <td style="text-align:left;">
-72.9%
+67.2%
 </td>
 </tr>
 <tr>
@@ -2566,10 +2580,10 @@ GLM
 0.390
 </td>
 <td style="text-align:left;">
--$5,344,800
+-$1,444,047
 </td>
 <td style="text-align:left;">
-84.2%
+81.5%
 </td>
 </tr>
 <tr>
@@ -2586,10 +2600,10 @@ SVM
 -0.022
 </td>
 <td style="text-align:left;">
--$34,020,400
+-$8,008,288
 </td>
 <td style="text-align:left;">
--0.6%
+-2.5%
 </td>
 </tr>
 <tr>
@@ -2606,10 +2620,10 @@ Forest
 0.430
 </td>
 <td style="text-align:left;">
--$2,516,700
+-$1,017,619
 </td>
 <td style="text-align:left;">
-92.6%
+87.0%
 </td>
 </tr>
 <tr>
@@ -2626,10 +2640,10 @@ Tree
 0.330
 </td>
 <td style="text-align:left;">
--$3,026,500
+-$1,511,173
 </td>
 <td style="text-align:left;">
-91.0%
+80.6%
 </td>
 </tr>
 <tr grouplength="2">
@@ -2651,7 +2665,7 @@ Tree
 0.000
 </td>
 <td style="text-align:left;">
--$10,135,800
+-$7,802,270
 </td>
 <td style="text-align:left;">
 0.0%
@@ -2671,10 +2685,10 @@ Tree
 0.430
 </td>
 <td style="text-align:left;">
--$738,300
+-$1,007,537
 </td>
 <td style="text-align:left;">
-92.7%
+87.1%
 </td>
 </tr>
 </tbody>
