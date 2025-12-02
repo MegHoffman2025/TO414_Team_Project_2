@@ -1,5 +1,5 @@
 ---
-title: "TeamProject2"
+title: "Team Project 2"
 author: "Dance Dance Revolution: Mario Prata Dias Alvarez, Sophie Kate Edelman, Meghan Sarah Hoffman, Elias Florentin John, Kritika Singh, Benjamin Victor Tward"
 date: "2025-10-23"
 output: 
@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(caret)
 ```
+
+![](images/pexels-cottonbro-5077420.jpg){width="333"}
 
 ## Step 0: Why?
 
@@ -60,12 +62,11 @@ Objective: To maximize user retention and daily active listening time, how can S
 
 Assumption: A $10\%$ increase in the number of high-engagement songs a user hears in their 'Discover Weekly' playlist will lead to a very marginal $0.01\%$ decrease in their probability of churning (canceling their subscription) that month.
 
-Further, there are 30 songs in the Discover weekly playlist. We assume that 20% of those are already hidden-gems. 
+Further, there are 30 songs in the Discover weekly playlist. We assume that 20% of those are already hidden-gems.
 
 ### TP:
 
 True positives have the following impact. Adding a hidden gem to the playlist results in an 80% chance of replacing a non–hidden gem and a 20% chance of replacing an existing hidden gem. Replacing a non–hidden gem increases the hidden-gem count from 6 to 7, a 16.67% lift. Because every 10% increase in hidden gems reduces churn by 0.01%, this lift translates to a 0.01667% churn reduction. The associated revenue impact is:
-
 
 $$0.8 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667$$
 
@@ -73,8 +74,7 @@ If the swap hits an existing hidden gem (20% probability), the hidden-gem count 
 
 $$0.2 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667$$
 
-In total we have the following result: 
-$$\$ 252 \text{ million } * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = \$ 340,268.04  $$
+In total we have the following result: $$\$ 252 \text{ million } * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = \$ 340,268.04  $$
 
 ### FP:
 
@@ -83,7 +83,6 @@ Adding a non–hidden gem has the worst consequences. With an 80% chance, it sim
 $$ 0.8 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = 0.8 *  \$ 340,268.04 $$
 
 There is, however, a 20% chance that the swap replaces a hidden gem. This reduces the hidden-gem count from 7 to 6 — a 16.67% decline — which increases the churn rate by 0.01667%. In this case, we incur both the revenue loss from higher churn and the missed opportunity of improving churn:
-
 
 $$ 0.2 * (\$ 252 \text{ million } * 13.5 * (-0.0001667) - \$ 340,268.04 ) $$
 
@@ -96,8 +95,6 @@ $$ 0.2 * (\$ 252 \text{ million } * 13.5 * (-0.0001667) - \$ 340,268.04 ) - 0.8 
 For false negatives, the only impact is the opportunity cost of not adding a hidden gem:
 
 $$ - \$ 340,268.04 $$
-
-
 
 We translate this into the following Net Financial Impact model to guide the Level 2 Stacker. The model is designed to maximize Net Impact (Revenue - Loss). The $\$$ values reflect the estimated scaled impact on CLV and promotion costs per decision.
 
@@ -119,7 +116,6 @@ The objective is to maximize the Net Impact, calculated as:
 $$
 \text{Net Impact} = \frac{(\text{TP} \times \$340,268.04) - (\text{FP} \times \$453,690.72) - (\text{FN} \times \$340,268.04)}{\text{# Months of Songs}} 
 $$
-
 
 ## Stacked Model Architecture
 
@@ -149,7 +145,6 @@ glm_prob <- readRDS("probabilities/GLMProbs.RDS")
 glm_pred <- readRDS("predictions/GLMPredictions.RDS")
 ```
 
-
 ```{r}
 glm_confusion <- confusionMatrix(as.factor(glm_pred), as.factor(test$popularity), positive = "1")
 glm_confusion
@@ -171,14 +166,12 @@ ann_model <- readRDS("models/ANNModelM1.RDS")
 #plot(ann_model)
 ```
 
-![](FinalProjectNeuralNetwork.png){width="485"}
-Incredible. 
+![](FinalProjectNeuralNetwork.png){width="485"} Incredible.
 
 ```{r}
 ann_prob <- readRDS("probabilities/ANNProbs.RDS")
 ann_pred <- readRDS("predictions/ANNPredictions.RDS")
 ```
-
 
 ```{r}
 ann_confusion <- confusionMatrix(as.factor(ann_pred), as.factor(test$popularity), positive = "1")
@@ -195,7 +188,6 @@ Work for this model was done in "modules/svm.R", however, since the file sizes w
 svm_prob <- readRDS("probabilities/SVMProbs.RDS")[, 1]
 svm_pred <- readRDS("predictions/SVMPredictions.RDS")
 ```
-
 
 ```{r}
 svm_confusion <- confusionMatrix(as.factor(svm_pred), as.factor(test$popularity), positive = "1")
@@ -215,6 +207,7 @@ This is what this model looks like
 forest_model <- readRDS("models/ForestModelM1.RDS")
 #plot(forest_model)
 ```
+
 And this is how important each variable is
 
 ```{r}
@@ -225,7 +218,6 @@ randomForest::varImpPlot(forest_model)
 forest_prob <- readRDS("probabilities/ForestProbs.RDS")
 forest_pred <- readRDS("predictions/ForestPredictions.RDS")
 ```
-
 
 ```{r}
 forest_confusion <- confusionMatrix(as.factor(forest_pred), as.factor(test$popularity), positive = "1")
@@ -242,7 +234,6 @@ Work for this model was done in "modules/knn.R", however, since the file sizes w
 knn_prob <- readRDS("probabilities/KNNProbs.RDS")
 knn_pred <- readRDS("predictions/KNNPredictions.RDS")
 ```
-
 
 ```{r}
 knn_confusion <- confusionMatrix(as.factor(knn_pred), as.factor(test$popularity), positive = "1")
@@ -263,26 +254,24 @@ decision_model <- readRDS("models/DecisionModelM1.RDS")
 plot(decision_model)
 ```
 
-Incredible. 
+Incredible.
 
 ```{r}
 decision_prob <- readRDS("probabilities/DecisionProbs.RDS")
 decision_pred <- readRDS("predictions/DecisionPredictions.RDS")
 ```
 
-
 ```{r}
 decision_confusion <- confusionMatrix(as.factor(decision_pred), as.factor(test$popularity), positive = "1")
 decision_confusion
 ```
+
 Baseline for level 1:
 
 ```{r, warning=FALSE, message=FALSE}
 baseline_pred = rep(1, length(decision_pred))
 baseline_confusion = confusionMatrix(as.factor(baseline_pred), as.factor(test$popularity), positive = "1")
 ```
-
-
 
 ```{r}
 SONGS_PER_MONTH = 30
@@ -371,11 +360,6 @@ sumtable = function(conf_list, leveltwo = FALSE, bl1, bl2) {
 
 ```
 
-
-
-
-
-
 **What we changed to get the best results** For the best results, we manipulated the threshold for the predictions to be popular or unpopular. Initially, we used a threshold of 0.5, but after optimizing for accuracy and sensitivity, we used a threshold of 0.19.
 
 ### All of the Level 1 Models
@@ -439,13 +423,13 @@ decision_pred2 <- ifelse(decision_p2 >= .5, 1, 0)
 decision2_confusion <- confusionMatrix(as.factor(decision_pred2), as.factor(test2$test.popularity), positive = "1")
 decision2_confusion
 ```
+
 Baseline for level 2:
 
 ```{r, warning=FALSE, message=FALSE}
 baseline_pred2 = rep(1, length(decision_pred2))
 baseline_confusion2 = confusionMatrix(as.factor(baseline_pred2), as.factor(test2$test.popularity), positive = "1")
 ```
-
 
 ## Step 7: Conclusion
 
@@ -469,8 +453,10 @@ sumtable(conflist, leveltwo = T, bl1 = baseline_confusion, bl2 = baseline_confus
 
 First, looking at our individual Level 1 models, the Random Forest appears to be the best-performing model with the highest overall accuracy of 80.42% and highest Kappa of 0.43. Its strong specificity allowed it to effectively avoid False Positives, which we established to be extremely expensive in this financial context, as Spotify’s recommendation engine would be promoting non-engaging content and thus face a large opportunity cost. However, it is important to note that it has a relatively lower sensitivity (49.38%), meaning that it still fails to identify many songs that would have driven higher engagement and reduced churn. While the Logistic Regression and ANN models also performed relatively well with better balance between sensitivity and accuracy, neither surpassed the Random Forest in terms of financial performance.
 
-Now, comparing our best Level 1 model to our Level 2 model, we see that this stacked model has the highest net financial return and the least projected loss ($1,007,537), representing an 87.1% improvement over the baseline. While improvements in accuracy and Kappa compared to the best Level 1 models were incremental, this model is better able to balance risk by combining linear and non-linear learning patterns while intelligently optimizing threshold decisions to minimize the most expensive prediction errors. In a business environment where even a 0.01% churn reduction represents millions of dollars in preserved Customer Lifetime Value, financially guided optimization is essential. Thus, out of all the models created, this stacked model would serve as the best decision engine for automated playlist curation like Discover Weekly.
+Now, comparing our best Level 1 model to our Level 2 model, we see that this stacked model has the highest net financial return and the least projected loss (\$1,007,537), representing an 87.1% improvement over the baseline. While improvements in accuracy and Kappa compared to the best Level 1 models were incremental, this model is better able to balance risk by combining linear and non-linear learning patterns while intelligently optimizing threshold decisions to minimize the most expensive prediction errors. In a business environment where even a 0.01% churn reduction represents millions of dollars in preserved Customer Lifetime Value, financially guided optimization is essential. Thus, out of all the models created, this stacked model would serve as the best decision engine for automated playlist curation like Discover Weekly.
+
+![](images/pexels-yente-van-eynde-1263034-2403054.jpg){width="333"}
 
 ### Possible Errors
 
-There are several limitations with the work we did that are worth noting. First, the music industry has rapidly shifting trends that may not be accounted for in this dataset and may not hold over time. Additionally, we defined popularity based on the popularity metric given in the dataset, which is an abstraction; we do not know the directly measured engagement outcomes that went into creating this metric (such as skip rate, replay frequency, playlist add-rate, etc.), meaning that the true use value is ambiguous. Additionally, the features we accounted for were mostly limited to audio characteristics and genre information, excluding information that is more contextual such as listener history or situational preferences. Finally, popularity is heavily influenced by artist fame. A song released by a globally recognized artist like Taylor Swift will likely have a high popularity score regardless of its audio characteristics, a bias that our model is not explicitly handling.
+There are several limitations with the work we did that are worth noting. First, the music industry has rapidly shifting trends that may not be accounted for in this data set and may not hold over time. Additionally, we defined popularity based on the popularity metric given in the data set, which is an abstraction; we do not know the directly measured engagement outcomes that went into creating this metric (such as skip rate, replay frequency, playlist add-rate, etc.), meaning that the true use value is ambiguous. Additionally, the features we accounted for were mostly limited to audio characteristics and genre information, excluding information that is more contextual such as listener history or situational preferences. Finally, popularity is heavily influenced by artist fame. A song released by a globally recognized artist like Taylor Swift will likely have a high popularity score regardless of its audio characteristics, a bias that our model is not explicitly handling.
