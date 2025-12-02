@@ -1714,7 +1714,8 @@ Singh, Benjamin Victor Tward</h4>
 
 <div id="step-0-why" class="section level2">
 <h2>Step 0: Why?</h2>
-<p>Step 0: Context, Objective, and Financial Model</p>
+<div id="context-objective-and-financial-model" class="section level3">
+<h3>Context, Objective, and Financial Model</h3>
 <p>Project Context: Realistic Spotify Metrics</p>
 <p>To ground this analysis in real-world performance, we use approximate
 public and industry figures for a large streaming platform (Q3 2024
@@ -1722,9 +1723,9 @@ estimates):</p>
 <table>
 <caption>Realistic Spotify Business Metrics</caption>
 <colgroup>
-<col width="29%" />
-<col width="24%" />
-<col width="45%" />
+<col width="25%" />
+<col width="35%" />
+<col width="38%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1736,43 +1737,101 @@ estimates):</p>
 <tbody>
 <tr class="odd">
 <td align="left">Monthly Active Users (MAU)</td>
-<td align="left">~600 Million</td>
+<td align="left">~640 Million</td>
 <td align="left">Based on publicly reported figures.</td>
 </tr>
 <tr class="even">
 <td align="left">Premium Subscribers</td>
-<td align="left">~250 Million (42% of MAU)</td>
+<td align="left">~252 Million (39% of MAU)</td>
 <td align="left">Based on publicly reported subscription rates.</td>
 </tr>
 <tr class="odd">
-<td align="left">Average Revenue Per User (ARPU)</td>
-<td align="left">~$4.50 / month</td>
-<td align="left">Blended rate across different tiers and regions.</td>
+<td align="left">Revenue Q3 2024</td>
+<td align="left">4 billion (85% through Premium Subscribers)</td>
+<td align="left">Based on publicly reported figures.</td>
 </tr>
 <tr class="even">
+<td align="left">Average Revenue Per User (ARPU)</td>
+<td align="left">~$13.5 / month</td>
+<td align="left">($4 billion * 0.85)/252 million</td>
+</tr>
+<tr class="odd">
 <td align="left">Estimated Monthly Churn Rate</td>
 <td align="left">~2.0%</td>
 <td align="left">Industry estimate for major streaming services.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Customer Lifetime Value (CLV)</td>
-<td align="left">~$225</td>
-<td align="left">Calculated as ARPU / Churn Rate = $4.50 / 0.02.</td>
+<td align="left">~$675</td>
+<td align="left">Calculated as ARPU / Churn Rate = $13.5 / 0.02.</td>
 </tr>
 </tbody>
 </table>
-<p>Objective</p>
+</div>
+<div id="objective" class="section level3">
+<h3>Objective</h3>
 <p>Objective: To maximize user retention and daily active listening
 time, how can Spotify’s recommendation engine use a song’s audio
 features (danceability, energy, valence), track_genre, and other
 variables to build a predictive model that more accurately identifies
 high-engagement tracks (i.e., high future popularity) for its
 personalized playlists like ‘Discover Weekly’?</p>
-<p>Assumption &amp; Financial Model</p>
+</div>
+<div id="assumption-financial-model" class="section level3">
+<h3>Assumption &amp; Financial Model</h3>
 <p>Assumption: A <span class="math inline">\(10\%\)</span> increase in
 the number of high-engagement songs a user hears in their ‘Discover
 Weekly’ playlist will lead to a very marginal <span class="math inline">\(0.01\%\)</span> decrease in their probability of
 churning (canceling their subscription) that month.</p>
+<p>Further, there are 30 songs in the Discover weekly playlist. We
+assume that 20% of those are already hidden-gems.</p>
+</div>
+<div id="tp" class="section level3">
+<h3>TP:</h3>
+<p>True positives have the following impact. Adding a hidden gem to the
+playlist results in an 80% chance of replacing a non–hidden gem and a
+20% chance of replacing an existing hidden gem. Replacing a non–hidden
+gem increases the hidden-gem count from 6 to 7, a 16.67% lift. Because
+every 10% increase in hidden gems reduces churn by 0.01%, this lift
+translates to a 0.01667% churn reduction. The associated revenue impact
+is:</p>
+<p><span class="math display">\[0.8 * \$ 252 million * \$ 13.5 *
+0.0001667\]</span></p>
+<p>If the swap hits an existing hidden gem (20% probability), the
+hidden-gem count does not increase, creating an equivalent opportunity
+cost:</p>
+<p><span class="math display">\[0.2 * \$ 252 million * \$ 13.5 *
+0.0001667\]</span></p>
+<p>In total we have the following result: <span class="math display">\[\$ 252 million * \$ 13.5 * 0.0001667 * (0.8 -
+0.2) = \$ 340,268.04  \]</span></p>
+</div>
+<div id="fp" class="section level3">
+<h3>FP:</h3>
+<p>Adding a non–hidden gem has the worst consequences. With an 80%
+chance, it simply replaces another non–hidden gem already in the
+playlist, generating no benefit. The only impact is the missed
+opportunity of adding a hidden gem, which we capture as opportunity
+cost:</p>
+<p><span class="math display">\[ 0.8 * \$ 252 million * \$ 13.5 *
+0.0001667 * (0.8 - 0.2) = 0.8 *  \$ 340,268.04 \]</span></p>
+<p>There is, however, a 20% chance that the swap replaces a hidden gem.
+This reduces the hidden-gem count from 7 to 6 — a 16.67% decline — which
+increases the churn rate by 0.01667%. In this case, we incur both the
+revenue loss from higher churn and the missed opportunity of improving
+churn:</p>
+<p><span class="math display">\[ 0.2 * (\$ 252 million * 13.5 *
+(-0.0001667) - \$ 340,268.04 ) \]</span></p>
+<p>Combining both outcomes gives the total value of a false
+positive:</p>
+<p><span class="math display">\[ 0.2 * (\$ 252 million * 13.5 *
+(-0.0001667) - \$ 340,268.04 ) - 0.8 *  \$ 340,268.04 = - \$ 453,690.72
+\]</span></p>
+</div>
+<div id="fn" class="section level3">
+<h3>FN:</h3>
+<p>For false negatives, the only impact is the opportunity cost of not
+adding a hidden gem:</p>
+<p><span class="math display">\[ - \$ 340,268.04 \]</span></p>
 <p>We translate this into the following Net Financial Impact model to
 guide the Level 2 Stacker. The model is designed to maximize Net Impact
 (Revenue - Loss). The <span class="math inline">\(\$\)</span> values
@@ -1782,7 +1841,7 @@ decision.</p>
 <caption>Net Financial Impact Model (Per Prediction)</caption>
 <colgroup>
 <col width="7%" />
-<col width="22%" />
+<col width="21%" />
 <col width="6%" />
 <col width="64%" />
 </colgroup>
@@ -1799,36 +1858,39 @@ decision.</p>
 <td align="left">True Positive (TP)</td>
 <td align="left">Correctly identifies a Hidden Gem (Target =
 ‘Yes’).</td>
-<td align="left">+$200</td>
+<td align="left">+$340,268.04</td>
 <td align="left">Revenue: Estimated net monthly value derived from the
-0.01% reduction in churn for a high-value, retained customer.
+0.01667% reduction in churn for a high-value, retained customer.
 (Maximize)</td>
 </tr>
 <tr class="even">
 <td align="left">False Positive (FP)</td>
 <td align="left">Predicts ‘Yes’, but actual is ‘No’. (Wasteful
 promotion)</td>
-<td align="left">-$500</td>
-<td align="left">Cost: Significant loss from license fees, content
-storage, and opportunity cost of promoting non-engaging content that
+<td align="left">-$453,690.72</td>
+<td align="left">Cost: Significant loss from removing high-engaging
+content, and opportunity cost of promoting non-engaging content that
 accelerates churn. (Minimize - Critical Error)</td>
 </tr>
 <tr class="odd">
 <td align="left">False Negative (FN)</td>
 <td align="left">Predicts ‘No’, but actual is ‘Yes’. (Lost
 opportunity)</td>
-<td align="left">-$100</td>
-<td align="left">Cost: Minor loss from missing a viable track and losing
-the opportunity for increased engagement and retention. (Minimize -
-Minor Error)</td>
+<td align="left">-$340,268.04</td>
+<td align="left">Cost: Loss from missing a viable track and losing the
+opportunity for increased engagement and retention. (Minimize)</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="net-impact-function" class="section level3">
+<h3>Net Impact Function</h3>
 <p>The objective is to maximize the Net Impact, calculated as:</p>
 <p><span class="math display">\[
-\text{Net Impact} = (\text{TP} \times \$200) - (\text{FP} \times \$500)
-- (\text{FN} \times \$100)
+\text{Net Impact} = (\text{TP} \times \$340,268.04) - (\text{FP} \times
+\$453,690.72) - (\text{FN} \times \$340,268.04)
 \]</span></p>
+</div>
 </div>
 <div id="stacked-model-architecture" class="section level2">
 <h2>Stacked Model Architecture</h2>
