@@ -67,29 +67,29 @@ Further, there are 30 songs in the Discover weekly playlist. We assume that 20% 
 True positives have the following impact. Adding a hidden gem to the playlist results in an 80% chance of replacing a non–hidden gem and a 20% chance of replacing an existing hidden gem. Replacing a non–hidden gem increases the hidden-gem count from 6 to 7, a 16.67% lift. Because every 10% increase in hidden gems reduces churn by 0.01%, this lift translates to a 0.01667% churn reduction. The associated revenue impact is:
 
 
-$$0.8 * \$ 252 million * \$ 13.5 * 0.0001667$$
+$$0.8 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667$$
 
 If the swap hits an existing hidden gem (20% probability), the hidden-gem count does not increase, creating an equivalent opportunity cost:
 
-$$0.2 * \$ 252 million * \$ 13.5 * 0.0001667$$
+$$0.2 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667$$
 
 In total we have the following result: 
-$$\$ 252 million * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = \$ 340,268.04  $$
+$$\$ 252 \text{ million } * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = \$ 340,268.04  $$
 
 ### FP:
 
 Adding a non–hidden gem has the worst consequences. With an 80% chance, it simply replaces another non–hidden gem already in the playlist, generating no benefit. The only impact is the missed opportunity of adding a hidden gem, which we capture as opportunity cost:
 
-$$ 0.8 * \$ 252 million * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = 0.8 *  \$ 340,268.04 $$
+$$ 0.8 * \$ 252 \text{ million } * \$ 13.5 * 0.0001667 * (0.8 - 0.2) = 0.8 *  \$ 340,268.04 $$
 
 There is, however, a 20% chance that the swap replaces a hidden gem. This reduces the hidden-gem count from 7 to 6 — a 16.67% decline — which increases the churn rate by 0.01667%. In this case, we incur both the revenue loss from higher churn and the missed opportunity of improving churn:
 
 
-$$ 0.2 * (\$ 252 million * 13.5 * (-0.0001667) - \$ 340,268.04 ) $$
+$$ 0.2 * (\$ 252 \text{ million } * 13.5 * (-0.0001667) - \$ 340,268.04 ) $$
 
 Combining both outcomes gives the total value of a false positive:
 
-$$ 0.2 * (\$ 252 million * 13.5 * (-0.0001667) - \$ 340,268.04 ) - 0.8 *  \$ 340,268.04 = - \$ 453,690.72 $$
+$$ 0.2 * (\$ 252 \text{ million } * 13.5 * (-0.0001667) - \$ 340,268.04 ) - 0.8 *  \$ 340,268.04 = - \$ 453,690.72 $$
 
 ### FN:
 
@@ -117,8 +117,9 @@ knitr::kable(financial_data, caption = "Net Financial Impact Model (Per Predicti
 The objective is to maximize the Net Impact, calculated as:
 
 $$
-\text{Net Impact} = (\text{TP} \times \$340,268.04) - (\text{FP} \times \$453,690.72) - (\text{FN} \times \$340,268.04) 
+\text{Net Impact} = \frac{(\text{TP} \times \$340,268.04) - (\text{FP} \times \$453,690.72) - (\text{FN} \times \$340,268.04)}{\text{# Months of Songs}} 
 $$
+
 
 ## Stacked Model Architecture
 
