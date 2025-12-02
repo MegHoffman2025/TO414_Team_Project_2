@@ -6,6 +6,10 @@ output:
   html_document:
     toc: True
     toc_float: True
+    theme: cerulean
+    code_folding: hide
+  pdf_document:
+    toc: false
 ---
 
 ```{r setup, include=FALSE}
