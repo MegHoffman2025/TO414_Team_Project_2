@@ -166,7 +166,9 @@ ann_model <- readRDS("models/ANNModelM1.RDS")
 #plot(ann_model)
 ```
 
-![](FinalProjectNeuralNetwork.png){width="485"} Incredible.
+![](FinalProjectNeuralNetwork.png){width="485"}
+
+> "Incredible." - Ben Tward
 
 ```{r}
 ann_prob <- readRDS("probabilities/ANNProbs.RDS")
